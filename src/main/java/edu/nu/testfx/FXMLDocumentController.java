@@ -1,40 +1,19 @@
 package edu.nu.testfx;
 
+import javafx.fxml.FXML;
+import javafx.fxml.Initializable;
+import javafx.scene.control.*;
+import javafx.scene.layout.AnchorPane;
+import model.User;
+import org.hibernate.Session;
+import org.hibernate.SessionFactory;
+import org.hibernate.Transaction;
+import org.hibernate.cfg.Configuration;
+
+import java.net.URL;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
-import java.net.URL;
-import java.sql.Connection;
-import java.sql.DriverManager;
-import java.sql.PreparedStatement;
-import java.sql.ResultSet;
-import java.sql.Statement;
-import java.util.ArrayList;
-import java.util.Date;
-import java.util.List;
 import java.util.ResourceBundle;
-import javafx.collections.FXCollections;
-import javafx.collections.ObservableList;
-import javafx.event.ActionEvent;
-import javafx.fxml.FXML;
-import javafx.fxml.FXMLLoader;
-import javafx.fxml.Initializable;
-import javafx.scene.Parent;
-import javafx.scene.Scene;
-import javafx.scene.control.Button;
-import javafx.scene.control.CheckBox;
-import javafx.scene.control.ComboBox;
-import javafx.scene.control.Hyperlink;
-import javafx.scene.control.Label;
-import javafx.scene.control.PasswordField;
-import javafx.scene.control.TextField;
-import javafx.scene.layout.AnchorPane;
-import javafx.stage.Stage;
-import java.sql.SQLException;
-import model.User;
-import com.example.util.HibernateUtil;
-import javafx.scene.control.*;
-import org.hibernate.Session;
-import org.hibernate.Transaction;
 
 public class FXMLDocumentController implements Initializable {
 
@@ -123,10 +102,6 @@ public class FXMLDocumentController implements Initializable {
     @FXML
     private PasswordField signup_Password;
 
-    @FXML
-    void register(ActionEvent event) {
-
-    }
 
     public void register() {
         alertMessage alert = new alertMessage();
@@ -142,14 +117,17 @@ public class FXMLDocumentController implements Initializable {
         else if (!signup_Password.getText().equals(Signup_cpassword.getText())) {
             alert.errorMessage("Password does not match");
             return;
-        }
-
-        else if (signup_Password.getText().length() < 8) {
+        } else if (signup_Password.getText().length() < 8) {
             alert.errorMessage("Invalid Password, at least 8 characters needed");
             return;
         }
 
-        try (Session session = HibernateUtil.getSessionFactory().openSession()) {
+
+        try {
+            Session session;
+            SessionFactory sessionFactory = new Configuration().configure().buildSessionFactory();
+            session = sessionFactory.openSession();
+
             // CHECK IF THE USERNAME OR EMAIL IS ALREADY TAKEN (more secure than raw SQL)
             boolean userExists = session.createQuery(
                             "SELECT count(u) > 0 FROM User u WHERE u.username = :username OR u.email = :email",
@@ -171,7 +149,7 @@ public class FXMLDocumentController implements Initializable {
                 User newUser = new User();
                 newUser.setEmail(signup_email.getText());
                 newUser.setUsername(signup_username.getText());
-                newUser.setPassword(hashPassword(signup_Password.getText())); // Note: Should hash this in production
+                newUser.setPassword(signup_Password.getText()); // Note: Should hash this in production
                 //newUser.setDate(new Date());
 
                 // Save the user
@@ -185,6 +163,11 @@ public class FXMLDocumentController implements Initializable {
                 signup_form.setVisible(false);
                 Login_form.setVisible(true);
 
+                session.getTransaction().commit();
+
+                session.close();
+
+
             } catch (Exception e) {
                 if (transaction != null) {
                     transaction.rollback();
@@ -195,20 +178,6 @@ public class FXMLDocumentController implements Initializable {
         } catch (Exception e) {
             e.printStackTrace();
             alert.errorMessage("Database connection error");
-        }
-    }
-
-    private String hashPassword(String password) {
-        try {
-            MessageDigest md = MessageDigest.getInstance("SHA-256");
-            byte[] hashedBytes = md.digest(password.getBytes());
-            StringBuilder sb = new StringBuilder();
-            for (byte b : hashedBytes) {
-                sb.append(String.format("%02x", b));
-            }
-            return sb.toString();
-        } catch (NoSuchAlgorithmException e) {
-            throw new RuntimeException("Error hashing password", e);
         }
     }
 

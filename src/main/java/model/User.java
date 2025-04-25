@@ -1,11 +1,14 @@
 package model;
 
-import javax.persistence.*;
-import java.util.Date;
+import jakarta.persistence.*;
+import lombok.Data;
+import lombok.NoArgsConstructor;
 
+import java.util.Date;
+@NoArgsConstructor
 @Entity
 @Table(name = "users")
-public class User {
+public @Data class User {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private int id;
@@ -19,20 +22,6 @@ public class User {
     @Column(nullable = false, unique = true)
     private String email;
 
-    /*@Temporal(TemporalType.TIMESTAMP)
-    @Column(name = "date", nullable = false)
-    private Date date = new Date();*/
-
-    // Constructors
-    public User() {}
-
-    public User(String email, String username, String password) {
-        this.email = email;
-        this.username = username;
-        this.password = password;
-    }
-
-    // Getters and Setters (IntelliJ can generate these with Alt+Insert)
     public int getId() {
         return id;
     }
@@ -64,6 +53,19 @@ public class User {
     public void setEmail(String email) {
         this.email = email;
     }
+/*@Temporal(TemporalType.TIMESTAMP)
+    @Column(name = "date", nullable = false)
+    private Date date = new Date();*/
+
+
+
+    public User(String email, String username, String password) {
+        this.email = email;
+        this.username = username;
+        this.password = password;
+    }
+
+
 
     /*public Date getDate() {
         return date;

@@ -1,10 +1,14 @@
 package com.example.util;  // Must match the package!
 
+import model.User;
+import org.hibernate.Session;
 import org.hibernate.SessionFactory;
+import org.hibernate.Transaction;
 import org.hibernate.boot.Metadata;
 import org.hibernate.boot.MetadataSources;
 import org.hibernate.boot.registry.StandardServiceRegistry;
 import org.hibernate.boot.registry.StandardServiceRegistryBuilder;
+import org.hibernate.cfg.Configuration;
 
 
 public class HibernateUtil {
@@ -18,7 +22,7 @@ public class HibernateUtil {
                         .build();
 
                 Metadata metadata = new MetadataSources(registry)
-                        .addAnnotatedClass(model.User.class)  // Link to your entity
+                        .addAnnotatedClass(User.class)  // Link to your entity
                         .getMetadataBuilder()
                         .build();
 
@@ -30,9 +34,19 @@ public class HibernateUtil {
         return sessionFactory;
     }
 
+
+
     public static void shutdown() {
         if (sessionFactory != null) {
             sessionFactory.close();
         }
+    }
+
+    public static Session openSession() {
+        Session session;
+        try (SessionFactory sessionFactory = new Configuration().configure().buildSessionFactory()) {
+            session = sessionFactory.openSession();
+        }
+        return session;
     }
 }
