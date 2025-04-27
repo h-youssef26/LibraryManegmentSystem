@@ -9,11 +9,15 @@ import org.hibernate.Session;
 import org.hibernate.SessionFactory;
 import org.hibernate.Transaction;
 import org.hibernate.cfg.Configuration;
-
+import javafx.event.ActionEvent;
 import java.net.URL;
-import java.security.MessageDigest;
-import java.security.NoSuchAlgorithmException;
 import java.util.ResourceBundle;
+import org.hibernate.query.Query;
+import javafx.scene.Parent;
+import javafx.scene.Scene;
+import javafx.stage.Stage;
+import javafx.fxml.FXMLLoader;
+
 
 public class FXMLDocumentController implements Initializable {
 
@@ -37,9 +41,6 @@ public class FXMLDocumentController implements Initializable {
 
     @FXML
     private TextField Login_showPassword;
-
-    @FXML
-    private TextField Siignup_email;
 
     @FXML
     private Button changePass_backBtn;
@@ -106,78 +107,228 @@ public class FXMLDocumentController implements Initializable {
     public void register() {
         alertMessage alert = new alertMessage();
 
-        // CHECK IF WE HAVE EMPTY FIELDS
         if (signup_email.getText().isEmpty() || signup_username.getText().isEmpty()
                 || signup_Password.getText().isEmpty() || Signup_cpassword.getText().isEmpty()) {
-            alert.errorMessage("All fields are necessary to be filled");
+            alert.errorMessage("All fields are required.");
             return;
         }
 
-        // FIXED: Use equals() instead of == for String comparison
-        else if (!signup_Password.getText().equals(Signup_cpassword.getText())) {
+        if (!signup_Password.getText().equals(Signup_cpassword.getText())) {
+            alert.errorMessage("Passwords do not match.");
+            return;
+        }
+
+        if (signup_Password.getText().length() < 8) {
+            alert.errorMessage("Password must be at least 8 characters.");
+            return;
+        }
+
+        SessionFactory sessionFactory = new Configuration().configure().buildSessionFactory();
+        Session session = null;
+        Transaction transaction = null;
+
+        try {
+            session = sessionFactory.openSession();
+            transaction = session.beginTransaction();
+
+            String hql = "SELECT count(u) FROM User u WHERE u.username = :username OR u.email = :email";
+            Long count = (Long) session.createQuery(hql)
+                    .setParameter("username", signup_username.getText())
+                    .setParameter("email", signup_email.getText())
+                    .uniqueResult();
+
+            if (count != null && count > 0) {
+                alert.errorMessage(signup_username.getText() + " is already taken.");
+                return;
+            }
+
+            User newUser = new User();
+            newUser.setEmail(signup_email.getText());
+            newUser.setUsername(signup_username.getText());
+            newUser.setPassword(signup_Password.getText());
+            // newUser.setDate(new Date());
+
+            session.save(newUser);
+            transaction.commit();
+
+            alert.successMessage("Registered Successfully!");
+
+            registerClearFields();
+            signup_form.setVisible(false);
+            Login_form.setVisible(true);
+
+        } catch (Exception e) {
+            if (transaction != null) {
+                transaction.rollback();
+            }
+            e.printStackTrace();
+            alert.errorMessage("Registration failed: " + e.getMessage());
+        } finally {
+            if (session != null) {
+                session.close();
+            }
+            if (sessionFactory != null) {
+                sessionFactory.close();
+            }
+        }
+    }
+
+
+    public void registerClearFields() {
+        signup_email.setText("");
+        signup_username.setText("");
+        signup_Password.setText("");
+        Signup_cpassword.setText("");
+    }
+
+    public void switchForm(ActionEvent event) {
+
+        if (event.getSource() == signup_loginAccount || event.getSource() == forgot_backBtn) {
+            signup_form.setVisible(false);
+            Login_form.setVisible(true);
+            changePass_form.setVisible(false);
+        } else if (event.getSource() == login_createAccount) {
+            signup_form.setVisible(true);
+            Login_form.setVisible(false);
+            changePass_form.setVisible(false);
+        } else if (event.getSource() == changePass_backBtn) {
+            signup_form.setVisible(false);
+            Login_form.setVisible(true);
+            changePass_form.setVisible(false);
+        } else if (event.getSource() == Login_forgotPassword) {
+            signup_form.setVisible(false);
+            Login_form.setVisible(false);
+            changePass_form.setVisible(true);
+        }
+
+    }
+    public void login() {
+        alertMessage alert = new alertMessage();
+
+        if (Login_Username.getText().isEmpty() || Login_showPassword.getText().isEmpty()) {
+            alert.errorMessage("Incorrect Username/Password");
+            return;
+        }
+
+        SessionFactory sessionFactory = new Configuration().configure().buildSessionFactory();
+        Session session = null;
+
+        try {
+            session = sessionFactory.openSession();
+
+            String hql = "FROM User u WHERE u.username = :username AND u.password = :password";
+            Query<User> query = session.createQuery(hql, User.class);
+            query.setParameter("username", Login_Username.getText());
+            query.setParameter("password", Login_showPassword.getText());
+
+            User user = query.uniqueResult();
+
+            if (user != null) {
+                alert.successMessage("Successfully Logged In!");
+
+                Parent root = FXMLLoader.load(getClass().getResource("/edu/nu/testfx/FXMLLogin.fxml"));
+                Stage stage = new Stage();
+                stage.setScene(new Scene(root));
+                stage.show();
+
+                ((Stage) Login_btn.getScene().getWindow()).close();
+            } else {
+                alert.errorMessage("Incorrect Username/Password");
+            }
+
+        } catch (Exception e) {
+            e.printStackTrace();
+            alert.errorMessage("Database error during login: " + e.getMessage());
+        } finally {
+            if (session != null) {
+                session.close();
+            }
+            if (sessionFactory != null) {
+                sessionFactory.close();
+            }
+        }
+    }
+
+    public void showPassword() {
+
+        if (Login_selectShowPassword.isSelected()) {
+            Login_showPassword.setText(Login_Password.getText());
+            Login_showPassword.setVisible(true);
+            Login_Password.setVisible(false);
+        } else {
+            Login_Password.setText(Login_showPassword.getText());
+            Login_showPassword.setVisible(false);
+            Login_Password.setVisible(true);
+        }
+
+    }
+
+    public void changePassword() {
+        alertMessage alert = new alertMessage();
+
+        if (changePass_password.getText().isEmpty() || changePass_cPassword.getText().isEmpty()) {
+            alert.errorMessage("Please fill all blank fields");
+            return;
+        }
+
+        if (!changePass_password.getText().equals(changePass_cPassword.getText())) {
             alert.errorMessage("Password does not match");
             return;
-        } else if (signup_Password.getText().length() < 8) {
+        }
+
+        if (changePass_password.getText().length() < 8) {
             alert.errorMessage("Invalid Password, at least 8 characters needed");
             return;
         }
 
+        SessionFactory sessionFactory = new Configuration().configure().buildSessionFactory();
+        Session session = sessionFactory.openSession();
+        Transaction transaction = null;
 
         try {
-            Session session;
-            SessionFactory sessionFactory = new Configuration().configure().buildSessionFactory();
-            session = sessionFactory.openSession();
+            transaction = session.beginTransaction();
 
-            // CHECK IF THE USERNAME OR EMAIL IS ALREADY TAKEN (more secure than raw SQL)
-            boolean userExists = session.createQuery(
-                            "SELECT count(u) > 0 FROM User u WHERE u.username = :username OR u.email = :email",
-                            Boolean.class)
-                    .setParameter("username", signup_username.getText())
-                    .setParameter("email", signup_email.getText())
-                    .getSingleResult();
+            String hql = "FROM User u WHERE u.username = :username";
+            Query<User> query = session.createQuery(hql, User.class);
+            query.setParameter("username", forgot_userrname.getText());
 
-            if (userExists) {
-                alert.errorMessage(signup_username.getText() + " is already taken");
-                return;
-            }
+            User user = query.uniqueResult();
 
-            // Begin transaction
-            Transaction transaction = session.beginTransaction();
+            if (user != null) {
+                user.setPassword(changePass_password.getText());
 
-            try {
-                // Create new user entity
-                User newUser = new User();
-                newUser.setEmail(signup_email.getText());
-                newUser.setUsername(signup_username.getText());
-                newUser.setPassword(signup_Password.getText()); // Note: Should hash this in production
-                //newUser.setDate(new Date());
+                /*Date date = new Date();
+                java.sql.Date sqlDate = new java.sql.Date(date.getTime());
+                user.setUpdateDate(sqlDate);*/
 
-                // Save the user
-                session.save(newUser);
+                session.update(user);
                 transaction.commit();
 
-                alert.successMessage("Registered Successfully!");
-
-                //registerClearFields();
+                alert.successMessage("Successfully changed password");
 
                 signup_form.setVisible(false);
                 Login_form.setVisible(true);
+                changePass_form.setVisible(false);
 
-                session.getTransaction().commit();
+                Login_Username.setText("");
+                Login_Password.setVisible(true);
+                Login_Password.setText("");
+                Login_showPassword.setVisible(false);
+                Login_selectShowPassword.setSelected(false);
 
-                session.close();
-
-
-            } catch (Exception e) {
-                if (transaction != null) {
-                    transaction.rollback();
-                }
-                e.printStackTrace();
-                alert.errorMessage("Registration failed: " + e.getMessage());
+                changePass_password.setText("");
+                changePass_cPassword.setText("");
+            } else {
+                alert.errorMessage("User not found");
             }
         } catch (Exception e) {
+            if (transaction != null) {
+                transaction.rollback();
+            }
             e.printStackTrace();
-            alert.errorMessage("Database connection error");
+            alert.errorMessage("An error occurred while changing the password.");
+        } finally {
+            session.close();
         }
     }
 

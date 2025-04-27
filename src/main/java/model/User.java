@@ -3,8 +3,9 @@ package model;
 import jakarta.persistence.*;
 import lombok.Data;
 import lombok.NoArgsConstructor;
+import java.sql.Date;
 
-import java.util.Date;
+
 @NoArgsConstructor
 @Entity
 @Table(name = "users")
@@ -21,6 +22,9 @@ public @Data class User {
 
     @Column(nullable = false, unique = true)
     private String email;
+
+    /*@Column(name="update_date")
+    private Date updateDate;*/
 
     public int getId() {
         return id;
@@ -53,10 +57,6 @@ public @Data class User {
     public void setEmail(String email) {
         this.email = email;
     }
-/*@Temporal(TemporalType.TIMESTAMP)
-    @Column(name = "date", nullable = false)
-    private Date date = new Date();*/
-
 
 
     public User(String email, String username, String password) {
@@ -65,13 +65,12 @@ public @Data class User {
         this.password = password;
     }
 
-
-
-    /*public Date getDate() {
-        return date;
+    /*public java.sql.Date getUpdateDate() {
+        return updateDate;
     }
 
-    public void setDate(Date date) {
-        this.date = date;
+    public void setUpdateDate(java.sql.Date updateDate) {
+        this.updateDate = updateDate;
     }*/
+
 }

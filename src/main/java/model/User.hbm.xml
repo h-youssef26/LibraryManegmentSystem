@@ -1,3 +1,4 @@
+<!--
 <?xml version = "1.0" encoding = "utf-8"?>
 <!DOCTYPE hibernate-mapping PUBLIC
         "-//Hibernate/Hibernate Mapping DTD//EN"
@@ -17,6 +18,8 @@
         <property name = "username" column = "username" type = "string"/>
         <property name = "email" column = "email" type = "string"/>
         <property name = "password" column = "password" type = "string"/>
+        <property name = "updateDate" column = "update_date" type = "date"/>
 
     </class>
 </hibernate-mapping>
+-->
