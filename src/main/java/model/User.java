@@ -23,6 +23,9 @@ public @Data class User {
     @Column(nullable = false, unique = true)
     private String email;
 
+    @Column(nullable = false)
+    private String role;
+
     /*@Column(name="update_date")
     private Date updateDate;*/
 
@@ -58,13 +61,13 @@ public @Data class User {
         this.email = email;
     }
 
-
-    public User(String email, String username, String password) {
-        this.email = email;
-        this.username = username;
-        this.password = password;
+    public String getRole() {
+        return role;
     }
 
+    public void setRole(String role) {
+        this.role = role;
+    }
     /*public java.sql.Date getUpdateDate() {
         return updateDate;
     }

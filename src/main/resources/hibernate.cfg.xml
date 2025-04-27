@@ -18,9 +18,14 @@
                 <property name="format_sql">true</property>
 
                 <property name="hibernate.current_session_context_class">thread</property>
+                <property name="hibernate.hbm2ddl.auto">update</property>
+
 
 
         <!-- Register entity classes -->
         <mapping class="model.User"/>
+        <mapping class="model.Book"/>
+        <mapping class="model.Library"/>
+        <mapping class="model.Category"/>
     </session-factory>
 </hibernate-configuration>
