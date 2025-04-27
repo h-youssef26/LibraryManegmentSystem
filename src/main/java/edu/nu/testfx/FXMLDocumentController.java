@@ -157,6 +157,14 @@ public class FXMLDocumentController implements Initializable {
             signup_form.setVisible(false);
             Login_form.setVisible(true);
 
+            FXMLLoader loader = new FXMLLoader(getClass().getResource("/edu/nu/testfx/HomePage.fxml"));
+            Parent homePageRoot = loader.load();
+            Scene homePageScene = new Scene(homePageRoot);
+
+            Stage stage = (Stage) signup_form.getScene().getWindow();
+            stage.setScene(homePageScene);
+            stage.show();
+
         } catch (Exception e) {
             if (transaction != null) {
                 transaction.rollback();
@@ -205,7 +213,9 @@ public class FXMLDocumentController implements Initializable {
     public void login() {
         alertMessage alert = new alertMessage();
 
-        if (Login_Username.getText().isEmpty() || Login_showPassword.getText().isEmpty()) {
+        String password = Login_showPassword.isVisible() ? Login_showPassword.getText() : Login_Password.getText();
+
+        if (Login_Username.getText().isEmpty() || password.isEmpty()) {
             alert.errorMessage("Incorrect Username/Password");
             return;
         }
@@ -219,17 +229,21 @@ public class FXMLDocumentController implements Initializable {
             String hql = "FROM User u WHERE u.username = :username AND u.password = :password";
             Query<User> query = session.createQuery(hql, User.class);
             query.setParameter("username", Login_Username.getText());
-            query.setParameter("password", Login_showPassword.getText());
+            query.setParameter("password", password);
 
             User user = query.uniqueResult();
 
             if (user != null) {
                 alert.successMessage("Successfully Logged In!");
 
-                Parent root = FXMLLoader.load(getClass().getResource("/edu/nu/testfx/FXMLLogin.fxml"));
-                Stage stage = new Stage();
-                stage.setScene(new Scene(root));
-                stage.show();
+                FXMLLoader loader = new FXMLLoader(getClass().getResource("/edu/nu/testfx/HomePage.fxml"));
+                Parent homeRoot = loader.load();
+
+                Stage homeStage = new Stage();
+                homeStage.setTitle("Home Page");
+                homeStage.setScene(new Scene(homeRoot));
+
+                homeStage.show();
 
                 ((Stage) Login_btn.getScene().getWindow()).close();
             } else {
@@ -250,7 +264,6 @@ public class FXMLDocumentController implements Initializable {
     }
 
     public void showPassword() {
-
         if (Login_selectShowPassword.isSelected()) {
             Login_showPassword.setText(Login_Password.getText());
             Login_showPassword.setVisible(true);
@@ -260,8 +273,8 @@ public class FXMLDocumentController implements Initializable {
             Login_showPassword.setVisible(false);
             Login_Password.setVisible(true);
         }
-
     }
+
 
     public void changePassword() {
         alertMessage alert = new alertMessage();
