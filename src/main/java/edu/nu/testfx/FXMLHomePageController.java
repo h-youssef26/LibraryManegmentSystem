@@ -10,11 +10,19 @@ import javafx.scene.control.TextField;
 import javafx.scene.control.TreeTableColumn;
 import javafx.scene.control.TreeTableView;
 import javafx.scene.layout.AnchorPane;
-
+import javafx.event.ActionEvent;
+import javafx.fxml.FXMLLoader;
+import javafx.scene.Parent;
+import javafx.scene.Scene;
 import java.net.URL;
 import java.util.ResourceBundle;
-
+import java.io.IOException;
+import java.net.URL;
+import java.util.ResourceBundle;
 public class FXMLHomePageController implements Initializable {
+
+
+
     @FXML
     private TextField AddBook_BookID;
 
@@ -210,7 +218,119 @@ public class FXMLHomePageController implements Initializable {
     @FXML
     private Button View_viewBtn;
 
+    @FXML
+    private Button addBtn;
 
+    @FXML
+    private Button homeBtn;
+
+    @FXML
+    private Button viewBtn;
+
+    @FXML
+    private Button borrowBtn;
+
+    @FXML
+    private Button returnBtn;
+
+
+
+    public void switchform(ActionEvent event) {
+        if (event.getSource() == homeBtn) {
+            Home_Form.setVisible(true);
+            AddBook_Form.setVisible(false);
+            BorrowedBook_Form.setVisible(false);
+            Return_Form.setVisible(false);
+            View_Form.setVisible(false);
+
+            Home_Form.setStyle("-fx-background-color:linear-gradient(to bottom right, #3f82ae, #26bf7d);");
+            AddBook_Form.setStyle("-fx-background-color:transparent");
+            BorrowedBook_Form.setStyle("-fx-background-color:transparent");
+            Return_Form.setStyle("-fx-background-color:transparent");
+            View_Form.setStyle("-fx-background-color:transparent");
+
+            /*homeDisplayTotalEnrolledStudents();
+            homeDisplayMaleEnrolled();
+            homeDisplayFemaleEnrolled();
+            homeDisplayEnrolledMaleChart();
+            homeDisplayFemaleEnrolledChart();
+            homeDisplayTotalEnrolledChart();*/
+
+        } else if (event.getSource() == addBtn) {
+            Home_Form.setVisible(false);
+            AddBook_Form.setVisible(true);
+            BorrowedBook_Form.setVisible(false);
+            Return_Form.setVisible(false);
+            View_Form.setVisible(false);
+
+            AddBook_Form.setStyle("-fx-background-color:linear-gradient(to bottom right, #3f82ae, #26bf7d);");
+            Home_Form.setStyle("-fx-background-color:transparent");
+            BorrowedBook_Form.setStyle("-fx-background-color:transparent");
+            Return_Form.setStyle("-fx-background-color:transparent");
+            View_Form.setStyle("-fx-background-color:transparent");
+
+
+//            TO BECOME UPDATED ONCE YOU CLICK THE ADD STUDENTS BUTTON ON NAV
+            /*addStudentsShowListData();
+            addStudentsYearList();
+            addStudentsGenderList();
+            addStudentsStatusList();
+            addStudentsCourseList();
+            addStudentsSearch();*/
+
+        } else if (event.getSource() == borrowBtn) {
+            Home_Form.setVisible(false);
+            AddBook_Form.setVisible(false);
+            BorrowedBook_Form.setVisible(true);
+            Return_Form.setVisible(false);
+            View_Form.setVisible(false);
+
+            BorrowedBook_Form.setStyle("-fx-background-color:linear-gradient(to bottom right, #3f82ae, #26bf7d);");
+            Home_Form.setStyle("-fx-background-color:transparent");
+            AddBook_Form.setStyle("-fx-background-color:transparent");
+            Return_Form.setStyle("-fx-background-color:transparent");
+            View_Form.setStyle("-fx-background-color:transparent");
+
+
+/*
+            availableCourseShowListData();
+*/
+
+        } else if (event.getSource() == returnBtn) {
+            Home_Form.setVisible(false);
+            AddBook_Form.setVisible(false);
+            BorrowedBook_Form.setVisible(false);
+            Return_Form.setVisible(true);
+            View_Form.setVisible(false);
+
+            Return_Form.setStyle("-fx-background-color:linear-gradient(to bottom right, #3f82ae, #26bf7d);");
+            Home_Form.setStyle("-fx-background-color:transparent");
+            AddBook_Form.setStyle("-fx-background-color:transparent");
+            BorrowedBook_Form.setStyle("-fx-background-color:transparent");
+            View_Form.setStyle("-fx-background-color:transparent");
+
+
+            /*studentGradesShowListData();
+            studentGradesSearch();*/
+
+        }else if (event.getSource() == viewBtn) {
+            Home_Form.setVisible(false);
+            AddBook_Form.setVisible(false);
+            Return_Form.setVisible(false);
+            BorrowedBook_Form.setVisible(false);
+            View_Form.setVisible(true);
+
+            View_Form.setStyle("-fx-background-color:linear-gradient(to bottom right, #3f82ae, #26bf7d);");
+            Home_Form.setStyle("-fx-background-color:transparent");
+            AddBook_Form.setStyle("-fx-background-color:transparent");
+            Return_Form.setStyle("-fx-background-color:transparent");
+            BorrowedBook_Form.setStyle("-fx-background-color:transparent");
+
+            /*studentGradesShowListData();
+            studentGradesSearch();*/
+
+        }
+    }
 
 
 

@@ -5,10 +5,14 @@ import javafx.fxml.FXMLLoader;
 import javafx.scene.Scene;
 import javafx.stage.Stage;
 import java.io.IOException;
-
+import javafx.scene.Parent;
+import javafx.scene.Scene;
+import javafx.scene.input.MouseEvent;
+import javafx.stage.Stage;
+import javafx.stage.StageStyle;
 
 public class LoginRegisterForgotPass extends Application {
-    @Override
+   @Override
     public void start(Stage stage) throws IOException {
         FXMLLoader fxmlLoader = new FXMLLoader(LoginRegisterForgotPass.class.getResource("FXMLLogin.fxml"));
         Scene scene = new Scene(fxmlLoader.load(), 500, 770);
@@ -20,4 +24,6 @@ public class LoginRegisterForgotPass extends Application {
     public static void main(String[] args) {
         launch();
     }
+
+
 }

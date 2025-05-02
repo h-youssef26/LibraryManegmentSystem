@@ -17,6 +17,8 @@ import javafx.scene.Parent;
 import javafx.scene.Scene;
 import javafx.stage.Stage;
 import javafx.fxml.FXMLLoader;
+import java.io.IOException;
+
 
 
 public class FXMLDocumentController implements Initializable {
@@ -236,14 +238,17 @@ public class FXMLDocumentController implements Initializable {
             if (user != null) {
                 alert.successMessage("Successfully Logged In!");
 
-                FXMLLoader loader = new FXMLLoader(getClass().getResource("/edu/nu/testfx/HomePage.fxml"));
-                Parent homeRoot = loader.load();
+                try {
+                    FXMLLoader loader = new FXMLLoader(getClass().getResource("HomePage.fxml"));
+                    Parent root = loader.load();
+                    Stage stage = new Stage();
+                    stage.setScene(new Scene(root));
+                    stage.show();
+                } catch (IOException e) {
+                    e.printStackTrace();
+                    // Show error to user
+                }
 
-                Stage homeStage = new Stage();
-                homeStage.setTitle("Home Page");
-                homeStage.setScene(new Scene(homeRoot));
-
-                homeStage.show();
 
                 ((Stage) Login_btn.getScene().getWindow()).close();
             } else {
