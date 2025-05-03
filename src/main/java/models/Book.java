@@ -1,4 +1,4 @@
-package model;
+package models;
 
 import jakarta.persistence.*;
 import java.sql.Date;
@@ -14,7 +14,7 @@ public  @Data class Book {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private int id;
+    private int  id;
 
     @Column(nullable = false)
     private String name;
@@ -34,10 +34,48 @@ public  @Data class Book {
 
     private Date borrowingDate;
 
+    private double price;
+
+    public Book(int id, String name, String author, Set<Category> categories, double price) {
+    }
+
+    public double getPrice() {
+        return price;
+    }
+
+    public void setPrice(double price) {
+        this.price = price;
+    }
+
+    public String getAuthor() {
+        return author;
+    }
+
+    public void setAuthor(String author) {
+        this.author = author;
+    }
+
+    private String author;
+
+
+
     @ManyToOne
     @JoinColumn(name = "library_id")
     private Library library;
 
+    @ManyToOne
+    @JoinColumn(name = "borrowed_by_user_id")
+    private User borrowedBy;
+
+    public String getYearPublished() {
+        return yearPublished;
+    }
+
+    public void setYearPublished(String yearPublished) {
+        this.yearPublished = yearPublished;
+    }
+
+    private String yearPublished;
 
     public int getId() {
         return id;
@@ -93,5 +131,9 @@ public  @Data class Book {
 
     public void setLibrary(Library library) {
         this.library = library;
+    }
+
+    public void setCategories(String selectedItem) {
+
     }
 }

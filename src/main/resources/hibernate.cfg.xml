@@ -22,10 +22,12 @@
 
 
 
+
+
         <!-- Register entity classes -->
-        <mapping class="model.User"/>
-        <mapping class="model.Book"/>
-        <mapping class="model.Library"/>
-        <mapping class="model.Category"/>
+        <mapping class="models.User"/>
+        <mapping class="models.Book"/>
+        <mapping class="models.Library"/>
+        <mapping class="models.Category"/>
     </session-factory>
 </hibernate-configuration>

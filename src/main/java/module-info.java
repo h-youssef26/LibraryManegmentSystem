@@ -9,7 +9,7 @@ module edu.nu.testfx {
     requires org.hibernate.orm.core;
     requires static lombok;
     opens edu.nu.testfx to javafx.fxml;
-    opens model to javafx.fxml, org.hibernate.orm.core;
-    exports model;
+    opens models to javafx.fxml, org.hibernate.orm.core;
+    exports models;
     exports edu.nu.testfx;
 }

@@ -1,10 +1,10 @@
-package model;
+package models;
 
 import jakarta.persistence.*;
 import lombok.Data;
 import lombok.NoArgsConstructor;
-import java.sql.Date;
-
+import java.util.ArrayList;
+import java.util.List;
 
 @NoArgsConstructor
 @Entity
@@ -25,6 +25,10 @@ public @Data class User {
 
     @Column(nullable = false)
     private String role;
+
+    @OneToMany(mappedBy = "borrowedBy")
+    private List<Book> borrowedBooks = new ArrayList<>();
+
 
     /*@Column(name="update_date")
     private Date updateDate;*/

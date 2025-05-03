@@ -1,26 +1,25 @@
-package model;
+package models;
 
 import jakarta.persistence.*;
-import lombok.NoArgsConstructor;
-import lombok.Data;
 import java.util.HashSet;
 import java.util.Set;
+import lombok.NoArgsConstructor;
+import lombok.Data;
 
 @NoArgsConstructor
 @Entity
-@Table(name = "Categories")
-public @Data class Category {
+@Table(name = "Library")
+public @Data class Library {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private int id;
 
-    @Column(nullable = false, unique = true)
-    private String name;
+    private int capacity;
 
-    @ManyToMany(mappedBy = "categories")
+    @OneToMany(cascade = CascadeType.ALL)
+    @JoinColumn(name = "library_id")
     private Set<Book> books = new HashSet<>();
-
 
     public int getId() {
         return id;
@@ -30,12 +29,12 @@ public @Data class Category {
         this.id = id;
     }
 
-    public String getName() {
-        return name;
+    public int getCapacity() {
+        return capacity;
     }
 
-    public void setName(String name) {
-        this.name = name;
+    public void setCapacity(int capacity) {
+        this.capacity = capacity;
     }
 
     public Set<Book> getBooks() {

@@ -10,18 +10,33 @@ import javafx.scene.control.TextField;
 import javafx.scene.control.TreeTableColumn;
 import javafx.scene.control.TreeTableView;
 import javafx.scene.layout.AnchorPane;
+import javafx.beans.property.ReadOnlyObjectWrapper;
+import javafx.beans.property.ReadOnlyStringWrapper;
+import javafx.collections.FXCollections;
+import javafx.collections.ObservableList;
+import javafx.scene.control.TreeItem;
 import javafx.event.ActionEvent;
+import java.util.ArrayList;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.Parent;
 import javafx.scene.Scene;
 import java.net.URL;
 import java.util.ResourceBundle;
-import java.io.IOException;
-import java.net.URL;
-import java.util.ResourceBundle;
+import javafx.scene.control.Alert;
+import javafx.scene.control.Alert.AlertType;
+import java.util.List;
+import javafx.scene.control.ButtonType;
+import java.util.Optional;
+import javafx.scene.input.MouseEvent;
+import javafx.stage.Stage;
+import javafx.stage.StageStyle;
+import org.hibernate.Session;
+import org.hibernate.SessionFactory;
+import org.hibernate.Transaction;
+import models.Book;
+import org.hibernate.cfg.Configuration;
+
 public class FXMLHomePageController implements Initializable {
-
-
 
     @FXML
     private TextField AddBook_BookID;
@@ -30,7 +45,7 @@ public class FXMLHomePageController implements Initializable {
     private TextField AddBook_BookTitle;
 
     @FXML
-    private ComboBox<?> AddBook_Category;
+    private ComboBox<String> AddBook_Category;
 
     @FXML
     private AnchorPane AddBook_Form;
@@ -45,7 +60,7 @@ public class FXMLHomePageController implements Initializable {
     private TextField AddBook_Search;
 
     @FXML
-    private ComboBox<?> AddBook_Year;
+    private ComboBox<String> AddBook_Year;
 
     @FXML
     private Button AddBook_addBtn;
@@ -53,29 +68,29 @@ public class FXMLHomePageController implements Initializable {
     @FXML
     private Button AddBook_clearBtn;
 
-    @FXML
-    private TreeTableColumn<?, ?> AddBook_col_Category;
+/*    @FXML
+    private TreeTableColumn<Book, String> AddBook_col_Category;*/
 
     @FXML
-    private TreeTableColumn<?, ?> AddBook_col_ID;
+    private TreeTableColumn<Book, Integer> AddBook_col_ID;
 
     @FXML
-    private TreeTableColumn<?, ?> AddBook_col_Price;
+    private TreeTableColumn<Book, String> AddBook_col_Price;
 
     @FXML
-    private TreeTableColumn<?, ?> AddBook_col_Publisher;
+    private TreeTableColumn<Book, String> AddBook_col_Publisher;
 
     @FXML
-    private TreeTableColumn<?, ?> AddBook_col_PublisherYear;
+    private TreeTableColumn<Book, String> AddBook_col_PublisherYear;
 
     @FXML
-    private TreeTableColumn<?, ?> AddBook_col_Title;
+    private TreeTableColumn<Book, String> AddBook_col_Title;
 
     @FXML
     private Button AddBook_deleteBtn;
 
     @FXML
-    private TreeTableView<?> AddBook_tableView;
+    private TreeTableView<Book> AddBook_tableView;
 
     @FXML
     private Button AddBook_updateBtn;
@@ -233,6 +248,9 @@ public class FXMLHomePageController implements Initializable {
     @FXML
     private Button returnBtn;
 
+    @FXML
+    private Button logout;
+
 
 
     public void switchform(ActionEvent event) {
@@ -269,10 +287,10 @@ public class FXMLHomePageController implements Initializable {
             Return_Form.setStyle("-fx-background-color:transparent");
             View_Form.setStyle("-fx-background-color:transparent");
 
-
-//            TO BECOME UPDATED ONCE YOU CLICK THE ADD STUDENTS BUTTON ON NAV
-            /*addStudentsShowListData();
+            showAddBookTreeTableData();
             addStudentsYearList();
+//            TO BECOME UPDATED ONCE YOU CLICK THE ADD STUDENTS BUTTON ON NAV
+            /*
             addStudentsGenderList();
             addStudentsStatusList();
             addStudentsCourseList();
@@ -333,9 +351,225 @@ public class FXMLHomePageController implements Initializable {
     }
 
 
+    private double x = 0;
+    private double y = 0;
+
+    public void logout() {
+
+        try {
+
+            Alert alert = new Alert(AlertType.CONFIRMATION);
+            alert.setTitle("Confirmation Message");
+            alert.setHeaderText(null);
+            alert.setContentText("Are you sure you want to logout?");
+
+            Optional<ButtonType> option = alert.showAndWait();
+
+            if (option.get().equals(ButtonType.OK)) {
+
+                //HIDE YOUR DASHBOARD FORM
+                logout.getScene().getWindow().hide();
+
+                //LINK YOUR LOGIN FORM
+                Parent root = FXMLLoader.load(getClass().getResource("FXMLLogin.fxml"));
+                Stage stage = new Stage();
+                Scene scene = new Scene(root);
+
+                root.setOnMousePressed((MouseEvent event) -> {
+                    x = event.getSceneX();
+                    y = event.getSceneY();
+                });
+
+                root.setOnMouseDragged((MouseEvent event) -> {
+                    stage.setX(event.getScreenX() - x);
+                    stage.setY(event.getScreenY() - y);
+
+                    stage.setOpacity(.8);
+                });
+
+                root.setOnMouseReleased((MouseEvent event) -> {
+                    stage.setOpacity(1);
+                });
+
+                stage.initStyle(StageStyle.TRANSPARENT);
+
+                stage.setScene(scene);
+                stage.show();
+
+            } else {
+                return;
+            }
+
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+
+    }
+
+    public void addBook() {
+        alertMessage alert = new alertMessage();
+
+        // Validate input fields
+        if ((AddBook_BookID.getText().isEmpty())
+                || (AddBook_BookTitle.getText().isEmpty())
+                || (AddBook_Price.getText().isEmpty())
+                || (AddBook_Year.getSelectionModel().getSelectedItem() == null)
+                //|| (AddBook_Category.getSelectionModel().getSelectedItem() == null))
+                || (AddBook_Publisher.getText().isEmpty())){
+            alert.errorMessage("All fields are required.");
+            return;
+        }
+
+        // Validate numeric fields
+        int bookId;
+        double price;
+        try {
+            bookId = Integer.parseInt(AddBook_BookID.getText());
+            price = Double.parseDouble(AddBook_Price.getText());
+        } catch (NumberFormatException e) {
+            alert.errorMessage("Please enter valid numeric values for ID and Price");
+            return;
+        }
+
+        SessionFactory sessionFactory = new Configuration().configure().buildSessionFactory();
+        Session session = null;
+        Transaction transaction = null;
+
+        try {
+            session = sessionFactory.openSession();
+            transaction = session.beginTransaction();
+
+            // Check if book exists by ID or Title
+            String hql = "SELECT count(b) FROM Book b WHERE b.id = :id OR b.name = :name";
+            Long count = (Long) session.createQuery(hql)
+                    .setParameter("id", bookId)
+                    .setParameter("name", AddBook_BookTitle.getText())
+                    .uniqueResult();
+
+            if (count != null && count > 0) {
+                alert.errorMessage("Book with this ID or Title already exists!");
+                return;
+            }
+
+            // Create new book
+            Book newBook = new Book();
+            newBook.setId(bookId);
+            newBook.setName(AddBook_BookTitle.getText());
+            newBook.setAuthor(AddBook_Publisher.getText());
+            /*newBook.setCategories((String) AddBook_Category.getSelectionModel().getSelectedItem());*/
+            newBook.setPrice(price);
+            newBook.setYearPublished(AddBook_Year.getSelectionModel().getSelectedItem());
+
+            session.save(newBook);
+            transaction.commit();
+
+            alert.successMessage("Book added successfully!");
+
+            // Clear fields and refresh list
+            /*clearBookFields();
+            refreshBookList();*/
+
+        } catch (Exception e) {
+            if (transaction != null) {
+                transaction.rollback();
+            }
+            e.printStackTrace();
+            alert.errorMessage("Error adding book: " + e.getMessage());
+        } finally {
+            if (session != null) {
+                session.close();
+            }
+            if (sessionFactory != null) {
+                sessionFactory.close();
+            }
+        }
+    }
+
+    public ObservableList<Book> loadAddBookListData() {
+        ObservableList<Book> listBooks = FXCollections.observableArrayList();
+        alertMessage alert = new alertMessage();
+
+        SessionFactory sessionFactory = null;
+        Session session = null;
+
+        try {
+            sessionFactory = new Configuration().configure().buildSessionFactory();
+            session = sessionFactory.openSession();
+
+            // HQL query to fetch all books
+            //List<Book> books = session.createQuery("FROM Book", Book.class).list();
+            List<Book> books = session.createQuery(
+                    "SELECT DISTINCT b FROM Book b LEFT JOIN FETCH b.categories",
+                    Book.class
+            ).list();
+            listBooks.addAll(books);
+
+        } catch (Exception e) {
+            e.printStackTrace();
+            alert.errorMessage("Error loading books: " + e.getMessage());
+        } finally {
+            if (session != null) session.close();
+            if (sessionFactory != null) sessionFactory.close();
+        }
+
+        return listBooks;
+    }
+
+    private ObservableList<Book> bookList;
+
+    public void showAddBookTreeTableData() {
+        bookList = loadAddBookListData(); // Hibernate-based method
+
+        // Create root TreeItem
+        TreeItem<Book> root = new TreeItem<>();
+        root.setExpanded(true);
+
+        for (Book book : bookList) {
+            root.getChildren().add(new TreeItem<>(book));
+        }
+
+        AddBook_col_ID.setCellValueFactory(param ->
+                new ReadOnlyObjectWrapper<>(param.getValue().getValue().getId()));
+
+        AddBook_col_Title.setCellValueFactory(param ->
+                new ReadOnlyStringWrapper(param.getValue().getValue().getName()));
+
+        AddBook_col_Publisher.setCellValueFactory(param ->
+                new ReadOnlyStringWrapper(param.getValue().getValue().getAuthor()));
+
+        AddBook_col_Price.setCellValueFactory(param ->
+                new ReadOnlyObjectWrapper(param.getValue().getValue().getPrice()));
+
+        AddBook_col_PublisherYear.setCellValueFactory(param ->
+                new ReadOnlyStringWrapper(param.getValue().getValue().getYearPublished()));
+
+
+        AddBook_tableView.setRoot(root);
+        AddBook_tableView.setShowRoot(false);
+    }
+
+    private String[] yearList = {"First Year", "Second Year", "Third Year", "Fourth Year"};
+
+    public void addStudentsYearList() {
+
+        List<String> yearL = new ArrayList<>();
+
+        for (String data : yearList) {
+            yearL.add(data);
+        }
+
+        ObservableList ObList = FXCollections.observableArrayList(yearL);
+        AddBook_Year.setItems(ObList);
+
+    }
+
+
 
     @Override
     public void initialize(URL url, ResourceBundle resourceBundle) {
+
+        showAddBookTreeTableData();
+        addStudentsYearList();
 
     }
 }

@@ -5,7 +5,7 @@
         "http://www.hibernate.org/dtd/hibernate-mapping-3.0.dtd">
 
 <hibernate-mapping>
-    <class name = "model.User" table = "users">
+    <class name = "models.User" table = "users">
 
         <meta attribute = "class-description">
             This class contains the users detail.
