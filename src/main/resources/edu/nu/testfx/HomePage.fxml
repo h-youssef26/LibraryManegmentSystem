@@ -292,7 +292,7 @@
                         </AnchorPane>
                      </children>
                   </AnchorPane>
-                  <AnchorPane fx:id="BorrowedBook_Form" layoutX="214.0" layoutY="176.0" prefHeight="649.0" prefWidth="846.0" AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0">
+                  <AnchorPane fx:id="BorrowedBook_Form" layoutX="214.0" layoutY="176.0" prefHeight="649.0" prefWidth="846.0" visible="false" AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0">
                      <children>
                         <AnchorPane layoutX="159.0" layoutY="125.0" prefHeight="649.0" prefWidth="846.0" AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0">
                            <children>
@@ -379,7 +379,7 @@
                                           <String fx:value="shadow" />
                                        </styleClass>
                                     </Button>
-                                    <Button fx:id="BorrowedBook_confermBtn1" layoutX="264.0" layoutY="213.0" mnemonicParsing="false" onAction="#clearBorrowFields" prefHeight="38.0" prefWidth="101.0" stylesheets="@Design/HomePage.css" text="CLEAR">
+                                    <Button fx:id="BorrowedBook_clear" layoutX="264.0" layoutY="213.0" mnemonicParsing="false" onAction="#clearBorrowFields" prefHeight="38.0" prefWidth="101.0" stylesheets="@Design/HomePage.css" text="CLEAR">
                                        <styleClass>
                                           <String fx:value="white-bg" />
                                           <String fx:value="shadow" />
@@ -391,7 +391,7 @@
                         </AnchorPane>
                      </children>
                   </AnchorPane>
-                  <AnchorPane fx:id="Return_Form" layoutX="10.0" layoutY="10.0" prefHeight="649.0" prefWidth="846.0" visible="false" AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0">
+                  <AnchorPane fx:id="Return_Form" layoutX="10.0" layoutY="10.0" prefHeight="649.0" prefWidth="846.0" AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0">
                      <children>
                         <AnchorPane prefHeight="649.0" prefWidth="846.0" AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0">
                            <children>
@@ -450,8 +450,13 @@
                                           <Font size="20.0" />
                                        </font>
                                     </Label>
-                                    <ComboBox fx:id="Return_studentGender" layoutX="195.0" layoutY="191.0" prefHeight="29.0" prefWidth="255.0" styleClass="textfield" stylesheets="@Design/HomePage.css" />
-                                    <Button fx:id="Return_checkBtn" layoutX="410.0" layoutY="251.0" mnemonicParsing="false" prefHeight="50.0" prefWidth="102.0" styleClass="update-btn" stylesheets="@Design/HomePage.css" text="CHECK">
+                                    <ComboBox fx:id="Return_studentGender" layoutX="195.0" layoutY="191.0" onAction="#genderList" prefHeight="29.0" prefWidth="255.0" styleClass="textfield" stylesheets="@Design/HomePage.css" />
+                                    <Button fx:id="Return_checkBtn" layoutX="410.0" layoutY="251.0" mnemonicParsing="false" onAction="#checkBookForReturn" prefHeight="50.0" prefWidth="102.0" styleClass="update-btn" stylesheets="@Design/HomePage.css" text="CHECK">
+                                       <font>
+                                          <Font size="24.0" />
+                                       </font>
+                                    </Button>
+                                    <Button fx:id="Return_clearBtn" layoutX="14.0" layoutY="251.0" mnemonicParsing="false" onAction="#clearReturnFields" prefHeight="50.0" prefWidth="102.0" styleClass="update-btn" stylesheets="@Design/HomePage.css" text="CLEAR">
                                        <font>
                                           <Font size="24.0" />
                                        </font>
@@ -465,7 +470,7 @@
                                     <String fx:value="white-bg" />
                                  </styleClass>
                                  <children>
-                                    <Button fx:id="Return_returnBtn" layoutX="73.0" layoutY="249.0" mnemonicParsing="false" prefHeight="50.0" prefWidth="102.0" styleClass="add-btn" stylesheets="@Design/HomePage.css" text="RETURN">
+                                    <Button fx:id="Return_returnBtn" layoutX="73.0" layoutY="249.0" mnemonicParsing="false" onAction="#processBookReturn" prefHeight="50.0" prefWidth="102.0" styleClass="add-btn" stylesheets="@Design/HomePage.css" text="RETURN">
                                        <font>
                                           <Font size="24.0" />
                                        </font>

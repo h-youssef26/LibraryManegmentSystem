@@ -135,6 +135,9 @@ public class FXMLHomePageController implements Initializable {
     private Button BorrowedBook_confermBtn;
 
     @FXML
+    private Button BorrowedBook_clear;
+
+    @FXML
     private TextField BorrowedBook_studentID;
 
     @FXML
@@ -171,19 +174,22 @@ public class FXMLHomePageController implements Initializable {
     private Button Return_checkBtn;
 
     @FXML
-    private TreeTableColumn<?, ?> Return_col_Author;
+    private Button Return_clearBtn;
+
+    @FXML
+    private TreeTableColumn<Book, String> Return_col_Author;
 
     @FXML
     private TextField Return_col_BookID;
 
     @FXML
-    private TreeTableColumn<?, ?> Return_col_ID;
+    private TreeTableColumn<Book, String> Return_col_ID;
 
     @FXML
-    private TreeTableColumn<?, ?> Return_col_Name;
+    private TreeTableColumn<Book, String> Return_col_Name;
 
     @FXML
-    private TreeTableColumn<?, ?> Return_col_Status;
+    private TreeTableColumn<Book, String> Return_col_Status;
 
     @FXML
     private Button Return_returnBtn;
@@ -198,7 +204,7 @@ public class FXMLHomePageController implements Initializable {
     private TextField Return_studentName;
 
     @FXML
-    private TreeTableView<?> Return_tableView;
+    private TreeTableView<Book> Return_tableView;
 
     @FXML
     private AnchorPane View_Form;
@@ -319,6 +325,9 @@ public class FXMLHomePageController implements Initializable {
             AddBook_Form.setStyle("-fx-background-color:transparent");
             BorrowedBook_Form.setStyle("-fx-background-color:transparent");
             View_Form.setStyle("-fx-background-color:transparent");
+
+            clearReturnFields();
+            showReturnBookTreeTableData();
 
 
         }else if (event.getSource() == viewBtn) {
@@ -523,8 +532,8 @@ public class FXMLHomePageController implements Initializable {
             book.setBorrowedStatus(true);
             book.setBorrowingPeriod(borrowingPeriod);
             book.setBorrowingDate(new Date(System.currentTimeMillis()));
-            book.setBorrowedBy(student);
 
+            book.setBorrowedBy(student);
             student.getBorrowedBooks().add(book);
 
             session.update(book);
@@ -816,7 +825,6 @@ public class FXMLHomePageController implements Initializable {
     public void showAddBookTreeTableData() {
         bookList = loadAddBookListData();
 
-        // Create root TreeItem
         TreeItem<Book> root = new TreeItem<>();
         root.setExpanded(true);
 
@@ -941,6 +949,205 @@ public class FXMLHomePageController implements Initializable {
         AddBook_Category.setItems(obList);
     }
 
+    public void checkBookForReturn() {
+        alertMessage alert = new alertMessage();
+
+        if (Return_col_BookID.getText().isEmpty()) {
+            alert.errorMessage("Please enter a Book ID");
+            return;
+        }
+
+        int bookId;
+        try {
+            bookId = Integer.parseInt(Return_col_BookID.getText());
+        } catch (NumberFormatException e) {
+            alert.errorMessage("Invalid Book ID (must be a number)");
+            return;
+        }
+
+        SessionFactory sessionFactory = null;
+        Session session = null;
+
+        try {
+            sessionFactory = new Configuration().configure().buildSessionFactory();
+            session = sessionFactory.openSession();
+
+            Book book = session.get(Book.class, bookId);
+            if (book == null) {
+                alert.errorMessage("Book #" + bookId + " not found!");
+                return;
+            }
+
+            if (!book.isBorrowedStatus()) {
+                alert.errorMessage("This book is not currently borrowed!");
+                return;
+            }
+
+            Return_BookTitle.setText(book.getName());
+            if (book.getBorrowedBy() != null) {
+                Return_studentID.setText(String.valueOf(book.getBorrowedBy().getId()));
+                Return_studentName.setText(book.getBorrowedBy().getUsername());
+            }
+
+            alert.successMessage("Book found! Click 'Return' to confirm.");
+
+        } catch (Exception e) {
+            e.printStackTrace();
+            alert.errorMessage("Error checking book: " + e.getMessage());
+        } finally {
+            if (session != null) session.close();
+            if (sessionFactory != null) sessionFactory.close();
+        }
+    }
+
+    public void processBookReturn() {
+        alertMessage alert = new alertMessage();
+
+        if (Return_col_BookID.getText().isEmpty()) {
+            alert.errorMessage("No book selected. Please 'Check' a book first.");
+            return;
+        }
+
+        int bookId;
+        try {
+            bookId = Integer.parseInt(Return_col_BookID.getText());
+        } catch (NumberFormatException e) {
+            alert.errorMessage("Invalid Book ID");
+            return;
+        }
+
+        SessionFactory sessionFactory = null;
+        Session session = null;
+        Transaction transaction = null;
+
+        try {
+            sessionFactory = new Configuration().configure().buildSessionFactory();
+            session = sessionFactory.openSession();
+            transaction = session.beginTransaction();
+
+            Book book = session.get(Book.class, bookId);
+            if (book == null) {
+                alert.errorMessage("Book no longer exists!");
+                return;
+            }
+
+            if (!book.isBorrowedStatus()) {
+                alert.errorMessage("Book is not borrowed (status changed)");
+                return;
+            }
+
+            User borrower = book.getBorrowedBy();
+            String borrowerName = (borrower != null) ? borrower.getUsername() : "Unknown";
+
+            book.setBorrowedStatus(false);
+            book.setBorrowingDate(null);
+            book.setBorrowingPeriod(null);
+            book.setBorrowedBy(null);
+
+            if (borrower != null) {
+                borrower.getBorrowedBooks().remove(book);
+                session.update(borrower);
+            }
+
+            session.update(book);
+            transaction.commit();
+
+            clearReturnFields();
+
+            alert.successMessage("Book #" + bookId + " returned from " + borrowerName + "!");
+
+        } catch (Exception e) {
+            if (transaction != null) transaction.rollback();
+            e.printStackTrace();
+            alert.errorMessage("Return failed: " + e.getMessage());
+        } finally {
+            if (session != null) session.close();
+            if (sessionFactory != null) sessionFactory.close();
+        }
+    }
+
+    public void clearReturnFields() {
+        Return_col_BookID.clear();
+        Return_BookTitle.clear();
+        Return_studentID.clear();
+        Return_studentName.clear();
+
+        Return_col_BookID.setStyle("");
+        Return_BookTitle.setStyle("");
+        Return_studentID.setStyle("");
+        Return_studentName.setStyle("");
+    }
+
+    private String[] genderList = {"Female","Male"};
+
+    public void genderList() {
+
+        List<String> genderL = new ArrayList<>();
+
+        for (String data : genderList) {
+            genderL.add(data);
+        }
+
+        ObservableList ObList = FXCollections.observableArrayList(genderL);
+        Return_studentGender.setItems(ObList);
+
+    }
+
+    public ObservableList<Book> loadReturnBookListData() {
+        ObservableList<Book> listBooks = FXCollections.observableArrayList();
+        alertMessage alert = new alertMessage();
+
+        SessionFactory sessionFactory = null;
+        Session session = null;
+
+        try {
+            sessionFactory = new Configuration().configure().buildSessionFactory();
+            session = sessionFactory.openSession();
+
+            List<Book> books = session.createQuery(
+                    "SELECT DISTINCT b FROM Book b",
+                    Book.class
+            ).list();
+            listBooks.addAll(books);
+
+        } catch (Exception e) {
+            e.printStackTrace();
+            alert.errorMessage("Error loading books: " + e.getMessage());
+        } finally {
+            if (session != null) session.close();
+            if (sessionFactory != null) sessionFactory.close();
+        }
+
+        return listBooks;
+    }
+
+    private ObservableList<Book> bookReturnList;
+
+    public void showReturnBookTreeTableData() {
+        bookReturnList = loadReturnBookListData();
+
+        TreeItem<Book> root = new TreeItem<>();
+        root.setExpanded(true);
+
+        for (Book book : bookReturnList) {
+            root.getChildren().add(new TreeItem<>(book));
+        }
+
+        Return_col_ID.setCellValueFactory(param ->
+                new ReadOnlyStringWrapper(String.valueOf(param.getValue().getValue().getId())));
+
+        Return_col_Name.setCellValueFactory(param ->
+                new ReadOnlyStringWrapper(param.getValue().getValue().getName()));
+
+        Return_col_Author.setCellValueFactory(param ->
+                new ReadOnlyStringWrapper(param.getValue().getValue().getAuthor()));
+
+        Return_col_Status.setCellValueFactory(param ->
+                new ReadOnlyStringWrapper(param.getValue().getValue().isBorrowedStatus() ? "Borrowed" : "Available"));
+
+        Return_tableView.setRoot(root);
+        Return_tableView.setShowRoot(false);
+    }
 
     @Override
     public void initialize(URL url, ResourceBundle resourceBundle) {
@@ -948,6 +1155,12 @@ public class FXMLHomePageController implements Initializable {
         showAddBookTreeTableData();
         addBookYearList();
         addBookcategories();
+        genderList();
+
         showBorrowBookTreeTableData();
+        showReturnBookTreeTableData();
+
+        Return_checkBtn.setOnAction(event -> checkBookForReturn());
+        Return_returnBtn.setOnAction(event -> processBookReturn());
     }
 }
