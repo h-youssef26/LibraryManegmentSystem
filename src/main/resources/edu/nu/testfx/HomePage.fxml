@@ -99,7 +99,7 @@
          <center>
             <AnchorPane prefHeight="200.0" prefWidth="200.0" BorderPane.alignment="CENTER">
                <children>
-                  <AnchorPane fx:id="Home_Form" layoutX="85.0" layoutY="165.0" prefHeight="639.0" prefWidth="836.0" visible="false" AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0">
+                  <AnchorPane fx:id="Home_Form" focusTraversable="true" layoutX="85.0" layoutY="165.0" prefHeight="639.0" prefWidth="836.0" visible="false" AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0">
                      <children>
                         <AnchorPane layoutX="10.0" layoutY="2.0" prefHeight="629.0" prefWidth="816.0" stylesheets="@Design/HomePage.css">
                            <styleClass>
@@ -215,7 +215,7 @@
                         </AnchorPane>
                      </children>
                   </AnchorPane>
-                  <AnchorPane fx:id="AddBook_Form" layoutX="261.0" layoutY="192.0" prefHeight="639.0" prefWidth="836.0" AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0">
+                  <AnchorPane fx:id="AddBook_Form" layoutX="261.0" layoutY="192.0" prefHeight="639.0" prefWidth="836.0" visible="false" AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0">
                      <children>
                         <AnchorPane layoutX="14.0" layoutY="1.0" prefHeight="626.0" prefWidth="809.0" stylesheets="@Design/HomePage.css">
                            <styleClass>
@@ -277,26 +277,26 @@
                                  </font>
                               </Label>
                               <TextField fx:id="AddBook_Price" layoutX="564.0" layoutY="448.0" prefHeight="30.0" prefWidth="162.0" styleClass="textfield" stylesheets="@Design/HomePage.css" />
-                              <ComboBox fx:id="AddBook_Category" layoutX="537.0" layoutY="511.0" prefHeight="30.0" prefWidth="161.0" styleClass="textfield" stylesheets="@Design/HomePage.css" />
+                              <ComboBox fx:id="AddBook_Category" layoutX="537.0" layoutY="511.0" onAction="#addBookcategories" prefHeight="30.0" prefWidth="161.0" styleClass="textfield" stylesheets="@Design/HomePage.css" />
                               <Label layoutX="417.0" layoutY="511.0" text="CATEGORY">
                                  <font>
                                     <Font size="20.0" />
                                  </font>
                               </Label>
-                              <Button fx:id="AddBook_deleteBtn" layoutX="382.0" layoutY="563.0" mnemonicParsing="false" prefHeight="43.0" prefWidth="96.0" styleClass="delete-btn" stylesheets="@Design/HomePage.css" text="DELETE" />
-                              <Button fx:id="AddBook_clearBtn" layoutX="270.0" layoutY="563.0" mnemonicParsing="false" prefHeight="43.0" prefWidth="96.0" styleClass="clear-btn" stylesheets="@Design/HomePage.css" text="CLEAR" />
+                              <Button fx:id="AddBook_deleteBtn" layoutX="382.0" layoutY="563.0" mnemonicParsing="false" onAction="#deleteBookWithCheck" prefHeight="43.0" prefWidth="96.0" styleClass="delete-btn" stylesheets="@Design/HomePage.css" text="DELETE" />
+                              <Button fx:id="AddBook_clearBtn" layoutX="270.0" layoutY="563.0" mnemonicParsing="false" onAction="#addBookClear" prefHeight="43.0" prefWidth="96.0" styleClass="clear-btn" stylesheets="@Design/HomePage.css" text="CLEAR" />
                               <Button fx:id="AddBook_addBtn" layoutX="678.0" layoutY="563.0" mnemonicParsing="false" onAction="#addBook" prefHeight="43.0" prefWidth="96.0" styleClass="add-btn" stylesheets="@Design/HomePage.css" text="ADD" />
-                              <Button fx:id="AddBook_updateBtn" layoutX="569.0" layoutY="563.0" mnemonicParsing="false" prefHeight="43.0" prefWidth="96.0" styleClass="update-btn" stylesheets="@Design/HomePage.css" text="UPDATE" />
+                              <Button fx:id="AddBook_updateBtn" layoutX="569.0" layoutY="563.0" mnemonicParsing="false" onAction="#addBookUpdate" prefHeight="43.0" prefWidth="96.0" styleClass="update-btn" stylesheets="@Design/HomePage.css" text="UPDATE" />
                               <ComboBox fx:id="AddBook_Year" layoutX="511.0" layoutY="385.0" prefHeight="30.0" prefWidth="161.0" styleClass="textfield" stylesheets="@Design/HomePage.css" />
                            </children>
                         </AnchorPane>
                      </children>
                   </AnchorPane>
-                  <AnchorPane fx:id="BorrowedBook_Form" layoutX="214.0" layoutY="176.0" prefHeight="649.0" prefWidth="846.0" visible="false" AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0">
+                  <AnchorPane fx:id="BorrowedBook_Form" layoutX="214.0" layoutY="176.0" prefHeight="649.0" prefWidth="846.0" AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0">
                      <children>
                         <AnchorPane layoutX="159.0" layoutY="125.0" prefHeight="649.0" prefWidth="846.0" AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0">
                            <children>
-                              <AnchorPane layoutX="17.0" prefHeight="375.0" prefWidth="817.0" stylesheets="@Design/HomePage.css">
+                              <AnchorPane layoutX="17.0" prefHeight="363.0" prefWidth="817.0" stylesheets="@Design/HomePage.css">
                                  <styleClass>
                                     <String fx:value="shadow" />
                                     <String fx:value="white-bg" />
@@ -305,7 +305,7 @@
                                  <children>
                                     <TextField fx:id="BorrowedBook_Search" layoutX="16.0" layoutY="14.0" prefHeight="30.0" prefWidth="325.0" promptText="Search" styleClass="search" stylesheets="@Design/HomePage.css" />
                                     <FontAwesomeIconView glyphName="SEARCH" layoutX="23.0" layoutY="35.0" size="1.5em" text="" />
-                                    <TreeTableView fx:id="BorrowedBook_tableView" layoutX="16.0" layoutY="53.0" prefHeight="309.0" prefWidth="783.0" styleClass="table-view" stylesheets="@Design/HomePage.css">
+                                    <TreeTableView fx:id="BorrowedBook_tableView" layoutX="16.0" layoutY="53.0" prefHeight="299.0" prefWidth="783.0" styleClass="table-view" stylesheets="@Design/HomePage.css">
                                       <columns>
                                         <TreeTableColumn fx:id="BorrowedBook_col_ID" prefWidth="94.0" text="BOOK ID" />
                                         <TreeTableColumn fx:id="BorrowedBook_col_Title" prefWidth="78.0" text="TITLE" />
@@ -317,78 +317,69 @@
                                     </TreeTableView>
                                  </children>
                               </AnchorPane>
-                              <AnchorPane layoutX="14.0" layoutY="384.0" prefHeight="251.0" prefWidth="459.0" stylesheets="@Design/HomePage.css">
+                              <AnchorPane layoutX="14.0" layoutY="370.0" prefHeight="265.0" prefWidth="810.0" stylesheets="@Design/HomePage.css">
                                  <styleClass>
                                     <String fx:value="card" />
                                     <String fx:value="shadow" />
                                     <String fx:value="white-bg" />
                                  </styleClass>
                                  <children>
-                                    <Label layoutX="123.0" layoutY="23.0" text="STUDENT DETAILS" textFill="WHITE">
+                                    <Label layoutX="307.0" layoutY="22.0" text="STUDENT DETAILS" textFill="WHITE">
                                        <font>
                                           <Font size="24.0" />
                                        </font>
                                     </Label>
-                                    <Label layoutX="24.0" layoutY="80.0" text="STUDENT NAME" textFill="WHITE">
+                                    <Label layoutX="24.0" layoutY="86.0" text="STUDENT NAME" textFill="WHITE">
                                        <font>
                                           <Font size="20.0" />
                                        </font>
                                     </Label>
-                                    <Label layoutX="22.0" layoutY="125.0" text="STUDENT ID" textFill="WHITE">
+                                    <Label layoutX="452.0" layoutY="86.0" text="STUDENT ID" textFill="WHITE">
                                        <font>
                                           <Font size="20.0" />
                                        </font>
                                     </Label>
-                                    <Label layoutX="22.0" layoutY="177.0" text="BOOK ID" textFill="WHITE">
+                                    <Label layoutX="24.0" layoutY="156.0" text="BOOK ID" textFill="WHITE">
                                        <font>
                                           <Font size="20.0" />
                                        </font>
                                     </Label>
-                                    <Button fx:id="BorrowedBook_checkBtn" layoutX="337.0" layoutY="193.0" mnemonicParsing="false" prefHeight="44.0" prefWidth="108.0" stylesheets="@Design/HomePage.css" text="CHECK">
+                                    <TextField fx:id="BorrowedBook_studentName" layoutX="194.0" layoutY="88.0" prefHeight="27.0" prefWidth="192.0" stylesheets="@Design/HomePage.css">
+                                       <styleClass>
+                                          <String fx:value="textfield" />
+                                          <String fx:value="shadow" />
+                                       </styleClass>
+                                    </TextField>
+                                    <TextField fx:id="BorrowedBook_studentID" layoutX="122.0" layoutY="158.0" prefHeight="27.0" prefWidth="192.0" stylesheets="@Design/HomePage.css">
+                                       <styleClass>
+                                          <String fx:value="textfield" />
+                                          <String fx:value="shadow" />
+                                       </styleClass>
+                                    </TextField>
+                                    <TextField fx:id="BorrowedBook_BookID" layoutX="582.0" layoutY="88.0" prefHeight="27.0" prefWidth="192.0" stylesheets="@Design/HomePage.css">
+                                       <styleClass>
+                                          <String fx:value="textfield" />
+                                          <String fx:value="shadow" />
+                                       </styleClass>
+                                    </TextField>
+                                    <Label layoutX="386.0" layoutY="156.0" text="BORROWED PERIOD" textFill="WHITE">
+                                       <font>
+                                          <Font size="20.0" />
+                                       </font>
+                                    </Label>
+                                    <TextField fx:id="BorrowedBook_borrowedPeriod" layoutX="582.0" layoutY="158.0" prefHeight="27.0" prefWidth="192.0" stylesheets="@Design/HomePage.css">
+                                       <styleClass>
+                                          <String fx:value="textfield" />
+                                          <String fx:value="shadow" />
+                                       </styleClass>
+                                    </TextField>
+                                    <Button fx:id="BorrowedBook_confermBtn" layoutX="453.0" layoutY="213.0" mnemonicParsing="false" onAction="#borrowBook" prefHeight="38.0" prefWidth="101.0" stylesheets="@Design/HomePage.css" text="CONFERM">
                                        <styleClass>
                                           <String fx:value="white-bg" />
                                           <String fx:value="shadow" />
                                        </styleClass>
                                     </Button>
-                                    <TextField fx:id="BorrowedBook_studentName" layoutX="186.0" layoutY="81.0" prefHeight="27.0" prefWidth="192.0" stylesheets="@Design/HomePage.css">
-                                       <styleClass>
-                                          <String fx:value="textfield" />
-                                          <String fx:value="shadow" />
-                                       </styleClass>
-                                    </TextField>
-                                    <TextField fx:id="BorrowedBook_studentID" layoutX="148.0" layoutY="127.0" prefHeight="27.0" prefWidth="192.0" stylesheets="@Design/HomePage.css">
-                                       <styleClass>
-                                          <String fx:value="textfield" />
-                                          <String fx:value="shadow" />
-                                       </styleClass>
-                                    </TextField>
-                                    <TextField fx:id="BorrowedBook_BookID" layoutX="115.0" layoutY="177.0" prefHeight="27.0" prefWidth="192.0" stylesheets="@Design/HomePage.css">
-                                       <styleClass>
-                                          <String fx:value="textfield" />
-                                          <String fx:value="shadow" />
-                                       </styleClass>
-                                    </TextField>
-                                 </children>
-                              </AnchorPane>
-                              <AnchorPane layoutX="483.0" layoutY="385.0" prefHeight="250.0" prefWidth="351.0" stylesheets="@Design/HomePage.css">
-                                 <styleClass>
-                                    <String fx:value="card" />
-                                    <String fx:value="shadow" />
-                                    <String fx:value="white-bg" />
-                                 </styleClass>
-                                 <children>
-                                    <Label layoutX="67.0" layoutY="62.0" text="BORROWED PERIOD" textFill="WHITE">
-                                       <font>
-                                          <Font size="24.0" />
-                                       </font>
-                                    </Label>
-                                    <TextField fx:id="BorrowedBook_borrowedPeriod" layoutX="80.0" layoutY="125.0" prefHeight="27.0" prefWidth="192.0" stylesheets="@Design/HomePage.css">
-                                       <styleClass>
-                                          <String fx:value="textfield" />
-                                          <String fx:value="shadow" />
-                                       </styleClass>
-                                    </TextField>
-                                    <Button fx:id="BorrowedBook_confermBtn" layoutX="122.0" layoutY="192.0" mnemonicParsing="false" prefHeight="44.0" prefWidth="108.0" stylesheets="@Design/HomePage.css" text="CONFERM">
+                                    <Button fx:id="BorrowedBook_confermBtn1" layoutX="264.0" layoutY="213.0" mnemonicParsing="false" onAction="#clearBorrowFields" prefHeight="38.0" prefWidth="101.0" stylesheets="@Design/HomePage.css" text="CLEAR">
                                        <styleClass>
                                           <String fx:value="white-bg" />
                                           <String fx:value="shadow" />

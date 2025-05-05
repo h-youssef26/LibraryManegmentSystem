@@ -2,8 +2,6 @@ package models;
 
 import jakarta.persistence.*;
 import java.sql.Date;
-import java.util.HashSet;
-import java.util.Set;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
@@ -19,13 +17,16 @@ public  @Data class Book {
     @Column(nullable = false)
     private String name;
 
-    @ManyToMany
-    @JoinTable(
-            name = "book_categories",
-            joinColumns = @JoinColumn(name = "book_id"),
-            inverseJoinColumns = @JoinColumn(name = "category_id")
-    )
-    private Set<Category> categories = new HashSet<>();
+    public String getCategories() {
+        return categories;
+    }
+
+    public void setCategories(String categories) {
+        this.categories = categories;
+    }
+
+    private String categories;
+
 
     @Column(nullable = false)
     private boolean borrowedStatus = false;
@@ -36,7 +37,7 @@ public  @Data class Book {
 
     private double price;
 
-    public Book(int id, String name, String author, Set<Category> categories, double price) {
+    public Book(int id, String name, String author, double price) {
     }
 
     public double getPrice() {
@@ -56,8 +57,6 @@ public  @Data class Book {
     }
 
     private String author;
-
-
 
     @ManyToOne
     @JoinColumn(name = "library_id")
@@ -93,14 +92,6 @@ public  @Data class Book {
         this.name = name;
     }
 
-    public Set<Category> getCategories() {
-        return categories;
-    }
-
-    public void setCategories(Set<Category> categories) {
-        this.categories = categories;
-    }
-
     public boolean isBorrowedStatus() {
         return borrowedStatus;
     }
@@ -133,7 +124,5 @@ public  @Data class Book {
         this.library = library;
     }
 
-    public void setCategories(String selectedItem) {
-
-    }
 }
+

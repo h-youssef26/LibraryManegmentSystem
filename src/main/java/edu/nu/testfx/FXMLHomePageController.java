@@ -19,6 +19,8 @@ import javafx.event.ActionEvent;
 import java.util.ArrayList;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.Parent;
+import java.sql.Date;
+import java.util.Calendar;
 import javafx.scene.Scene;
 import java.net.URL;
 import java.util.ResourceBundle;
@@ -34,6 +36,7 @@ import org.hibernate.Session;
 import org.hibernate.SessionFactory;
 import org.hibernate.Transaction;
 import models.Book;
+import models.User;
 import org.hibernate.cfg.Configuration;
 
 public class FXMLHomePageController implements Initializable {
@@ -68,8 +71,8 @@ public class FXMLHomePageController implements Initializable {
     @FXML
     private Button AddBook_clearBtn;
 
-/*    @FXML
-    private TreeTableColumn<Book, String> AddBook_col_Category;*/
+   @FXML
+    private TreeTableColumn<Book, String> AddBook_col_Category;
 
     @FXML
     private TreeTableColumn<Book, Integer> AddBook_col_ID;
@@ -111,22 +114,22 @@ public class FXMLHomePageController implements Initializable {
     private Button BorrowedBook_checkBtn;
 
     @FXML
-    private TreeTableColumn<?, ?> BorrowedBook_col_Author;
+    private TreeTableColumn<Book, String> BorrowedBook_col_Author;
 
     @FXML
-    private TreeTableColumn<?, ?> BorrowedBook_col_ID;
+    private TreeTableColumn<Book, String> BorrowedBook_col_ID;
 
     @FXML
-    private TreeTableColumn<?, ?> BorrowedBook_col_Status;
+    private TreeTableColumn<Book, String> BorrowedBook_col_Status;
 
     @FXML
-    private TreeTableColumn<?, ?> BorrowedBook_col_Title;
+    private TreeTableColumn<Book, String> BorrowedBook_col_Title;
 
     @FXML
-    private TreeTableColumn<?, ?> BorrowedBook_col_borrowedDate;
+    private TreeTableColumn<Book, String> BorrowedBook_col_borrowedDate;
 
     @FXML
-    private TreeTableColumn<?, ?> BorrowedBook_col_borrowedPeriod;
+    private TreeTableColumn<Book, String> BorrowedBook_col_borrowedPeriod;
 
     @FXML
     private Button BorrowedBook_confermBtn;
@@ -138,7 +141,7 @@ public class FXMLHomePageController implements Initializable {
     private TextField BorrowedBook_studentName;
 
     @FXML
-    private TreeTableView<?> BorrowedBook_tableView;
+    private TreeTableView<Book> BorrowedBook_tableView;
 
     @FXML
     private LineChart<?, ?> Hime_Capacity;
@@ -267,12 +270,6 @@ public class FXMLHomePageController implements Initializable {
             Return_Form.setStyle("-fx-background-color:transparent");
             View_Form.setStyle("-fx-background-color:transparent");
 
-            /*homeDisplayTotalEnrolledStudents();
-            homeDisplayMaleEnrolled();
-            homeDisplayFemaleEnrolled();
-            homeDisplayEnrolledMaleChart();
-            homeDisplayFemaleEnrolledChart();
-            homeDisplayTotalEnrolledChart();*/
 
         } else if (event.getSource() == addBtn) {
             Home_Form.setVisible(false);
@@ -288,13 +285,10 @@ public class FXMLHomePageController implements Initializable {
             View_Form.setStyle("-fx-background-color:transparent");
 
             showAddBookTreeTableData();
-            addStudentsYearList();
-//            TO BECOME UPDATED ONCE YOU CLICK THE ADD STUDENTS BUTTON ON NAV
-            /*
-            addStudentsGenderList();
-            addStudentsStatusList();
-            addStudentsCourseList();
-            addStudentsSearch();*/
+            addBookYearList();
+            addBookClear();
+            addBookcategories();
+
 
         } else if (event.getSource() == borrowBtn) {
             Home_Form.setVisible(false);
@@ -309,10 +303,9 @@ public class FXMLHomePageController implements Initializable {
             Return_Form.setStyle("-fx-background-color:transparent");
             View_Form.setStyle("-fx-background-color:transparent");
 
+            showBorrowBookTreeTableData();
+            clearBorrowFields();
 
-/*
-            availableCourseShowListData();
-*/
 
         } else if (event.getSource() == returnBtn) {
             Home_Form.setVisible(false);
@@ -328,9 +321,6 @@ public class FXMLHomePageController implements Initializable {
             View_Form.setStyle("-fx-background-color:transparent");
 
 
-            /*studentGradesShowListData();
-            studentGradesSearch();*/
-
         }else if (event.getSource() == viewBtn) {
             Home_Form.setVisible(false);
             AddBook_Form.setVisible(false);
@@ -343,9 +333,6 @@ public class FXMLHomePageController implements Initializable {
             AddBook_Form.setStyle("-fx-background-color:transparent");
             Return_Form.setStyle("-fx-background-color:transparent");
             BorrowedBook_Form.setStyle("-fx-background-color:transparent");
-
-            /*studentGradesShowListData();
-            studentGradesSearch();*/
 
         }
     }
@@ -367,10 +354,8 @@ public class FXMLHomePageController implements Initializable {
 
             if (option.get().equals(ButtonType.OK)) {
 
-                //HIDE YOUR DASHBOARD FORM
                 logout.getScene().getWindow().hide();
 
-                //LINK YOUR LOGIN FORM
                 Parent root = FXMLLoader.load(getClass().getResource("FXMLLogin.fxml"));
                 Stage stage = new Stage();
                 Scene scene = new Scene(root);
@@ -409,18 +394,16 @@ public class FXMLHomePageController implements Initializable {
     public void addBook() {
         alertMessage alert = new alertMessage();
 
-        // Validate input fields
         if ((AddBook_BookID.getText().isEmpty())
                 || (AddBook_BookTitle.getText().isEmpty())
                 || (AddBook_Price.getText().isEmpty())
                 || (AddBook_Year.getSelectionModel().getSelectedItem() == null)
-                //|| (AddBook_Category.getSelectionModel().getSelectedItem() == null))
+                || (AddBook_Category.getSelectionModel().getSelectedItem() == null)
                 || (AddBook_Publisher.getText().isEmpty())){
             alert.errorMessage("All fields are required.");
             return;
         }
 
-        // Validate numeric fields
         int bookId;
         double price;
         try {
@@ -439,7 +422,6 @@ public class FXMLHomePageController implements Initializable {
             session = sessionFactory.openSession();
             transaction = session.beginTransaction();
 
-            // Check if book exists by ID or Title
             String hql = "SELECT count(b) FROM Book b WHERE b.id = :id OR b.name = :name";
             Long count = (Long) session.createQuery(hql)
                     .setParameter("id", bookId)
@@ -451,12 +433,11 @@ public class FXMLHomePageController implements Initializable {
                 return;
             }
 
-            // Create new book
             Book newBook = new Book();
             newBook.setId(bookId);
             newBook.setName(AddBook_BookTitle.getText());
             newBook.setAuthor(AddBook_Publisher.getText());
-            /*newBook.setCategories((String) AddBook_Category.getSelectionModel().getSelectedItem());*/
+            newBook.setCategories((String) AddBook_Category.getSelectionModel().getSelectedItem());
             newBook.setPrice(price);
             newBook.setYearPublished(AddBook_Year.getSelectionModel().getSelectedItem());
 
@@ -465,9 +446,8 @@ public class FXMLHomePageController implements Initializable {
 
             alert.successMessage("Book added successfully!");
 
-            // Clear fields and refresh list
-            /*clearBookFields();
-            refreshBookList();*/
+            addBookClear();
+
 
         } catch (Exception e) {
             if (transaction != null) {
@@ -485,6 +465,324 @@ public class FXMLHomePageController implements Initializable {
         }
     }
 
+    public void borrowBook() {
+        alertMessage alert = new alertMessage();
+
+        if ((BorrowedBook_BookID.getText().isEmpty())
+                || (BorrowedBook_borrowedPeriod.getText().isEmpty())
+                || (BorrowedBook_studentID.getText().isEmpty())) {
+            alert.errorMessage("All fields are required.");
+            return;
+        }
+
+        int bookId;
+        int borrowingPeriod;
+        int studentId;
+        try {
+            bookId = Integer.parseInt(BorrowedBook_BookID.getText());
+            borrowingPeriod = Integer.parseInt(BorrowedBook_borrowedPeriod.getText());
+            studentId = Integer.parseInt(BorrowedBook_studentID.getText());
+        } catch (NumberFormatException e) {
+            alert.errorMessage("Please enter valid numeric values for ID and Period");
+            return;
+        }
+
+        SessionFactory sessionFactory = new Configuration().configure().buildSessionFactory();
+        Session session = null;
+        Transaction transaction = null;
+
+        try {
+            session = sessionFactory.openSession();
+            transaction = session.beginTransaction();
+
+            Book book = session.get(Book.class, bookId);
+            if (book == null) {
+                alert.errorMessage("Book with ID " + bookId + " not found!");
+                return;
+            }
+
+            if (book.isBorrowedStatus()) {
+                if (book.getBorrowingDate() != null && book.getBorrowingPeriod() != null) {
+                    Calendar cal = Calendar.getInstance();
+                    cal.setTime(book.getBorrowingDate());
+                    cal.add(Calendar.DAY_OF_MONTH, book.getBorrowingPeriod());
+                    Date returnDate = new Date(cal.getTimeInMillis());
+                    alert.errorMessage("This book is currently borrowed and will be available after: " + returnDate);
+                } else {
+                    alert.errorMessage("This book is currently borrowed (return date unknown)");
+                }
+                return;
+            }
+
+            User student = session.get(User.class, studentId);
+            if (student == null) {
+                alert.errorMessage("Student with ID " + studentId + " not found!");
+                return;
+            }
+
+            book.setBorrowedStatus(true);
+            book.setBorrowingPeriod(borrowingPeriod);
+            book.setBorrowingDate(new Date(System.currentTimeMillis()));
+            book.setBorrowedBy(student);
+
+            student.getBorrowedBooks().add(book);
+
+            session.update(book);
+            session.update(student);
+            transaction.commit();
+
+            alert.successMessage("Book borrowed successfully!\n" +
+                    student.getUsername() + " now has " +
+                    student.getBorrowedBooks().size() + " books.");
+
+            clearBorrowFields();
+
+        } catch (Exception e) {
+            if (transaction != null && transaction.isActive()) {
+                transaction.rollback();
+            }
+            e.printStackTrace();
+            alert.errorMessage("Error borrowing book: " + e.getMessage());
+        } finally {
+            if (session != null) {
+                session.close();
+            }
+            if (sessionFactory != null) {
+                sessionFactory.close();
+            }
+        }
+    }
+
+    public void clearBorrowFields() {
+        BorrowedBook_BookID.clear();
+        BorrowedBook_borrowedPeriod.clear();
+        BorrowedBook_studentID.clear();
+        BorrowedBook_studentName.clear();
+
+        BorrowedBook_BookID.setStyle("");
+        BorrowedBook_borrowedPeriod.setStyle("");
+        BorrowedBook_studentID.setStyle("");
+        BorrowedBook_studentName.setStyle("");
+    }
+
+    public boolean isBookBorrowed(int bookId) {
+        SessionFactory sessionFactory = null;
+        Session session = null;
+        try {
+            sessionFactory = new Configuration().configure().buildSessionFactory();
+            session = sessionFactory.openSession();
+
+            String hql = "SELECT b.borrowedStatus FROM Book b WHERE b.id = :bookId";
+            Boolean isBorrowed = (Boolean) session.createQuery(hql)
+                    .setParameter("bookId", bookId)
+                    .uniqueResult();
+
+            return isBorrowed != null && isBorrowed;
+        } catch (Exception e) {
+            e.printStackTrace();
+            return false;
+        } finally {
+            if (session != null) session.close();
+            if (sessionFactory != null) sessionFactory.close();
+        }
+    }
+
+    public Date getBookReturnDate(int bookId) {
+        SessionFactory sessionFactory = null;
+        Session session = null;
+        try {
+            sessionFactory = new Configuration().configure().buildSessionFactory();
+            session = sessionFactory.openSession();
+
+            String hql = "SELECT b.borrowingDate, b.borrowingPeriod FROM Book b WHERE b.id = :bookId AND b.borrowedStatus = true";
+            Object[] result = (Object[]) session.createQuery(hql)
+                    .setParameter("bookId", bookId)
+                    .uniqueResult();
+
+            if (result != null && result[0] != null && result[1] != null) {
+                Date borrowingDate = (Date) result[0];
+                Integer borrowingPeriod = (Integer) result[1];
+
+                if (borrowingDate != null && borrowingPeriod != null) {
+                    Calendar cal = Calendar.getInstance();
+                    cal.setTime(borrowingDate);
+                    cal.add(Calendar.DAY_OF_MONTH, borrowingPeriod);
+                    return new Date(cal.getTimeInMillis());
+                }
+            }
+            return null;
+        } catch (Exception e) {
+            e.printStackTrace();
+            return null;
+        } finally {
+            if (session != null) session.close();
+            if (sessionFactory != null) sessionFactory.close();
+        }
+    }
+
+    public void deleteBookWithCheck() {
+        alertMessage alert = new alertMessage();
+
+        if (AddBook_BookID.getText().isEmpty()) {
+            alert.errorMessage("Please enter a Book ID");
+            return;
+        }
+
+        int bookId;
+        try {
+            bookId = Integer.parseInt(AddBook_BookID.getText());
+        } catch (NumberFormatException e) {
+            alert.errorMessage("Please enter a valid numeric Book ID");
+            return;
+        }
+
+        if (isBookBorrowed(bookId)) {
+            Date returnDate = getBookReturnDate(bookId);
+            if (returnDate != null) {
+                alert.errorMessage("This book is currently borrowed and cannot be deleted.\n" +
+                        "It will be available for deletion after: " + returnDate);
+            } else {
+                alert.errorMessage("This book is currently borrowed and cannot be deleted.");
+            }
+            return;
+        }
+
+        Alert confirmation = new Alert(AlertType.CONFIRMATION);
+        confirmation.setTitle("Confirmation Message");
+        confirmation.setHeaderText(null);
+        confirmation.setContentText("Are you sure you want to DELETE Book #" + bookId + "?");
+
+        Optional<ButtonType> option = confirmation.showAndWait();
+        if (!option.get().equals(ButtonType.OK)) {
+            return;
+        }
+
+        SessionFactory sessionFactory = null;
+        Session session = null;
+        Transaction transaction = null;
+
+        try {
+            sessionFactory = new Configuration().configure().buildSessionFactory();
+            session = sessionFactory.openSession();
+            transaction = session.beginTransaction();
+
+            Book bookToDelete = session.get(Book.class, bookId);
+            if (bookToDelete == null) {
+                alert.errorMessage("Book with ID " + bookId + " not found!");
+                return;
+            }
+
+            if (bookToDelete.isBorrowedStatus()) {
+                alert.errorMessage("This book was just borrowed and cannot be deleted.");
+                return;
+            }
+
+            session.delete(bookToDelete);
+            transaction.commit();
+
+            alert.successMessage("Book successfully deleted!");
+            addBookClear();
+            showAddBookTreeTableData();
+
+        } catch (Exception e) {
+            if (transaction != null) transaction.rollback();
+            e.printStackTrace();
+            alert.errorMessage("Error deleting book: " + e.getMessage());
+        } finally {
+            if (session != null) session.close();
+            if (sessionFactory != null) sessionFactory.close();
+        }
+    }
+
+    public void addBookUpdate() {
+        alertMessage alert = new alertMessage();
+
+        if (AddBook_BookID.getText().isEmpty()
+                || AddBook_Year.getSelectionModel().getSelectedItem() == null
+                || AddBook_Publisher.getText().isEmpty()
+                || AddBook_BookTitle.getText().isEmpty()
+                || AddBook_Price.getText().isEmpty()
+                || AddBook_Category.getSelectionModel().getSelectedItem() == null
+        ){
+            alert.errorMessage("Please fill all blank fields");
+            return;
+        }
+
+        int bookId;
+        double price;
+        try {
+            bookId = Integer.parseInt(AddBook_BookID.getText());
+            price = Double.parseDouble(AddBook_Price.getText());
+        } catch (NumberFormatException e) {
+            alert.errorMessage("Invalid ID or Price format - must be numbers");
+            return;
+        }
+
+        Alert confirmation = new Alert(Alert.AlertType.CONFIRMATION);
+        confirmation.setTitle("Confirmation Message");
+        confirmation.setHeaderText(null);
+        confirmation.setContentText("Are you sure you want to UPDATE Book #"
+                + AddBook_BookTitle.getText() + "?");
+
+        Optional<ButtonType> option = confirmation.showAndWait();
+        if (option.get() != ButtonType.OK) {
+            return;
+        }
+
+        SessionFactory sessionFactory = new Configuration().configure().buildSessionFactory();
+        Session session = null;
+        Transaction transaction = null;
+
+        try {
+            session = sessionFactory.openSession();
+            transaction = session.beginTransaction();
+
+            Book bookToUpdate = session.get(Book.class, bookId);
+            if (bookToUpdate == null) {
+                alert.errorMessage("Book with ID " + bookId + " not found!");
+                return;
+            }
+
+            bookToUpdate.setName(AddBook_BookTitle.getText());
+            bookToUpdate.setAuthor(AddBook_Publisher.getText());
+            bookToUpdate.setPrice(price);
+            bookToUpdate.setYearPublished(AddBook_Year.getSelectionModel().getSelectedItem());
+            bookToUpdate.setCategories(AddBook_Category.getSelectionModel().getSelectedItem());
+
+
+            session.update(bookToUpdate);
+            transaction.commit();
+
+            alert.successMessage("Successfully Updated!");
+
+            showAddBookTreeTableData();
+            addBookClear();
+
+        } catch (Exception e) {
+            if (transaction != null) {
+                transaction.rollback();
+            }
+            e.printStackTrace();
+            alert.errorMessage("Error updating Book: " + e.getMessage());
+        } finally {
+            if (session != null) {
+                session.close();
+            }
+            if (sessionFactory != null) {
+                sessionFactory.close();
+            }
+        }
+    }
+
+    public void addBookClear() {
+        AddBook_BookTitle.setText("");
+        AddBook_Price.setText("");
+        AddBook_Publisher.setText("");
+        AddBook_BookID.setText("");
+        AddBook_Year.getSelectionModel().clearSelection();
+        AddBook_Category.getSelectionModel().clearSelection();
+    }
+
     public ObservableList<Book> loadAddBookListData() {
         ObservableList<Book> listBooks = FXCollections.observableArrayList();
         alertMessage alert = new alertMessage();
@@ -496,10 +794,8 @@ public class FXMLHomePageController implements Initializable {
             sessionFactory = new Configuration().configure().buildSessionFactory();
             session = sessionFactory.openSession();
 
-            // HQL query to fetch all books
-            //List<Book> books = session.createQuery("FROM Book", Book.class).list();
             List<Book> books = session.createQuery(
-                    "SELECT DISTINCT b FROM Book b LEFT JOIN FETCH b.categories",
+                    "SELECT DISTINCT b FROM Book b",
                     Book.class
             ).list();
             listBooks.addAll(books);
@@ -518,7 +814,7 @@ public class FXMLHomePageController implements Initializable {
     private ObservableList<Book> bookList;
 
     public void showAddBookTreeTableData() {
-        bookList = loadAddBookListData(); // Hibernate-based method
+        bookList = loadAddBookListData();
 
         // Create root TreeItem
         TreeItem<Book> root = new TreeItem<>();
@@ -543,14 +839,83 @@ public class FXMLHomePageController implements Initializable {
         AddBook_col_PublisherYear.setCellValueFactory(param ->
                 new ReadOnlyStringWrapper(param.getValue().getValue().getYearPublished()));
 
+        AddBook_col_Category.setCellValueFactory(param ->
+                new ReadOnlyStringWrapper(param.getValue().getValue().getCategories()));
+
 
         AddBook_tableView.setRoot(root);
         AddBook_tableView.setShowRoot(false);
     }
 
+    public ObservableList<Book> loadBorrowBookListData() {
+        ObservableList<Book> listBooks = FXCollections.observableArrayList();
+        alertMessage alert = new alertMessage();
+
+        SessionFactory sessionFactory = null;
+        Session session = null;
+
+        try {
+            sessionFactory = new Configuration().configure().buildSessionFactory();
+            session = sessionFactory.openSession();
+
+            List<Book> books = session.createQuery(
+                    "SELECT DISTINCT b FROM Book b",
+                    Book.class
+            ).list();
+            listBooks.addAll(books);
+
+        } catch (Exception e) {
+            e.printStackTrace();
+            alert.errorMessage("Error loading books: " + e.getMessage());
+        } finally {
+            if (session != null) session.close();
+            if (sessionFactory != null) sessionFactory.close();
+        }
+
+        return listBooks;
+    }
+
+    private ObservableList<Book> bookBorrowList;
+
+    public void showBorrowBookTreeTableData() {
+        bookBorrowList = loadBorrowBookListData();
+
+        TreeItem<Book> root = new TreeItem<>();
+        root.setExpanded(true);
+
+        for (Book book : bookBorrowList) {
+            root.getChildren().add(new TreeItem<>(book));
+        }
+
+        BorrowedBook_col_ID.setCellValueFactory(param ->
+                new ReadOnlyStringWrapper(String.valueOf(param.getValue().getValue().getId())));
+
+        BorrowedBook_col_Title.setCellValueFactory(param ->
+                new ReadOnlyStringWrapper(param.getValue().getValue().getName()));
+
+        BorrowedBook_col_Author.setCellValueFactory(param ->
+                new ReadOnlyStringWrapper(param.getValue().getValue().getAuthor()));
+
+        BorrowedBook_col_Status.setCellValueFactory(param ->
+                new ReadOnlyStringWrapper(param.getValue().getValue().isBorrowedStatus() ? "Borrowed" : "Available"));
+
+        BorrowedBook_col_borrowedDate.setCellValueFactory(param -> {
+            Date date = param.getValue().getValue().getBorrowingDate();
+            return new ReadOnlyStringWrapper(date != null ? date.toString() : "N/A");
+        });
+
+        BorrowedBook_col_borrowedPeriod.setCellValueFactory(param -> {
+            Integer period = param.getValue().getValue().getBorrowingPeriod();
+            return new ReadOnlyStringWrapper(period != null ? period.toString() + " days" : "N/A");
+        });
+
+        BorrowedBook_tableView.setRoot(root);
+        BorrowedBook_tableView.setShowRoot(false);
+    }
+
     private String[] yearList = {"First Year", "Second Year", "Third Year", "Fourth Year"};
 
-    public void addStudentsYearList() {
+    public void addBookYearList() {
 
         List<String> yearL = new ArrayList<>();
 
@@ -563,13 +928,26 @@ public class FXMLHomePageController implements Initializable {
 
     }
 
+    private String[] categories = {"Biology", "Maths", "History", "chemistry", "politics"};
+
+    public void addBookcategories() {
+        List<String> categoryList = new ArrayList<>();
+
+        for (String data : categories) {
+            categoryList.add(data);
+        }
+
+        ObservableList<String> obList = FXCollections.observableArrayList(categoryList);
+        AddBook_Category.setItems(obList);
+    }
 
 
     @Override
     public void initialize(URL url, ResourceBundle resourceBundle) {
 
         showAddBookTreeTableData();
-        addStudentsYearList();
-
+        addBookYearList();
+        addBookcategories();
+        showBorrowBookTreeTableData();
     }
 }

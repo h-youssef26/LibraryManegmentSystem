@@ -28,6 +28,5 @@
         <mapping class="models.User"/>
         <mapping class="models.Book"/>
         <mapping class="models.Library"/>
-        <mapping class="models.Category"/>
     </session-factory>
 </hibernate-configuration>
