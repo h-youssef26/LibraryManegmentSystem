@@ -17,17 +17,8 @@ public  @Data class Book {
     @Column(nullable = false)
     private String name;
 
-    public String getCategories() {
-        return categories;
-    }
-
-    public void setCategories(String categories) {
-        this.categories = categories;
-    }
-
     @Column(nullable = false)
     private String categories;
-
 
     @Column(nullable = false)
     private boolean borrowedStatus = false;
@@ -37,6 +28,18 @@ public  @Data class Book {
     private Date borrowingDate;
 
     private double price;
+
+    private String author;
+
+    private String yearPublished;
+
+    @ManyToOne
+    @JoinColumn(name = "library_id")
+    private Library library;
+
+    @ManyToOne
+    @JoinColumn(name = "borrowed_by_user_id")
+    private User borrowedBy;
 
     public Book(int id, String name, String author, double price) {
     }
@@ -57,15 +60,9 @@ public  @Data class Book {
         this.author = author;
     }
 
-    private String author;
+    public String getCategories() {return categories;}
 
-    @ManyToOne
-    @JoinColumn(name = "library_id")
-    private Library library;
-
-    @ManyToOne
-    @JoinColumn(name = "borrowed_by_user_id")
-    private User borrowedBy;
+    public void setCategories(String categories) {this.categories = categories;}
 
     public String getYearPublished() {
         return yearPublished;
@@ -74,8 +71,6 @@ public  @Data class Book {
     public void setYearPublished(String yearPublished) {
         this.yearPublished = yearPublished;
     }
-
-    private String yearPublished;
 
     public int getId() {
         return id;

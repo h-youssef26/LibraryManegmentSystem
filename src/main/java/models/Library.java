@@ -19,6 +19,7 @@ public @Data class Library {
 
     @OneToMany(cascade = CascadeType.ALL)
     @JoinColumn(name = "library_id")
+
     private Set<Book> books = new HashSet<>();
 
     public int getId() {

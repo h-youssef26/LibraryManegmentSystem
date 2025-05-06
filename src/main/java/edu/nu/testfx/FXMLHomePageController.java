@@ -38,6 +38,7 @@ import org.hibernate.Transaction;
 import models.Book;
 import models.User;
 import org.hibernate.cfg.Configuration;
+import javafx.scene.control.TextInputDialog;
 
 public class FXMLHomePageController implements Initializable {
 
@@ -260,7 +261,8 @@ public class FXMLHomePageController implements Initializable {
     @FXML
     private Button logout;
 
-
+    private static int libraryCapacity = 0;
+    private static int currentBookCount = 0;
 
     public void switchform(ActionEvent event) {
         if (event.getSource() == homeBtn) {
@@ -405,8 +407,40 @@ public class FXMLHomePageController implements Initializable {
 
     }
 
+    public void setLibraryCapacity(int capacity) {
+        libraryCapacity = capacity;
+        Hime_totalCapacity.setText(String.valueOf(capacity));
+        updateBookCount();
+    }
+
+    public void updateBookCount() {
+        SessionFactory sessionFactory = null;
+        Session session = null;
+
+        try {
+            sessionFactory = new Configuration().configure().buildSessionFactory();
+            session = sessionFactory.openSession();
+
+            Long count = (Long) session.createQuery("SELECT COUNT(*) FROM Book").uniqueResult();
+            currentBookCount = count != null ? count.intValue() : 0;
+
+            Hime_totalCapacity.setText(libraryCapacity + " (Used: " + currentBookCount + ")");
+
+        } catch (Exception e) {
+            e.printStackTrace();
+        } finally {
+            if (session != null) session.close();
+            if (sessionFactory != null) sessionFactory.close();
+        }
+    }
+
     public void addBook() {
         alertMessage alert = new alertMessage();
+
+        if (currentBookCount >= libraryCapacity) {
+            alert.errorMessage("Library is at full capacity (" + libraryCapacity + " books). Cannot add more books.");
+            return;
+        }
 
         if ((AddBook_BookID.getText().isEmpty())
                 || (AddBook_BookTitle.getText().isEmpty())
@@ -461,6 +495,8 @@ public class FXMLHomePageController implements Initializable {
             alert.successMessage("Book added successfully!");
 
             addBookClear();
+            currentBookCount++;
+            updateBookCount();
 
 
         } catch (Exception e) {
@@ -697,6 +733,8 @@ public class FXMLHomePageController implements Initializable {
             alert.successMessage("Book successfully deleted!");
             addBookClear();
             showAddBookTreeTableData();
+            currentBookCount--;
+            updateBookCount();
 
         } catch (Exception e) {
             if (transaction != null) transaction.rollback();
@@ -1078,6 +1116,7 @@ public class FXMLHomePageController implements Initializable {
         Return_studentName.clear();
         Return_studentGender.getSelectionModel().clearSelection();
 
+        Return_BookDate.setStyle("");
         Return_col_BookID.setStyle("");
         Return_BookTitle.setStyle("");
         Return_studentID.setStyle("");
@@ -1280,6 +1319,21 @@ public class FXMLHomePageController implements Initializable {
     @Override
     public void initialize(URL url, ResourceBundle resourceBundle) {
 
+        TextInputDialog dialog = new TextInputDialog("1000");
+        dialog.setTitle("Library Capacity");
+        dialog.setHeaderText("Set Library Capacity");
+        dialog.setContentText("Enter maximum number of books:");
+
+        Optional<String> result = dialog.showAndWait();
+        result.ifPresent(capacity -> {
+            try {
+                setLibraryCapacity(Integer.parseInt(capacity));
+            } catch (NumberFormatException e) {
+                new alertMessage().errorMessage("Invalid number - using default capacity 1000");
+                setLibraryCapacity(1000);
+            }
+        });
+
         showAddBookTreeTableData();
         addBookYearList();
         addBookcategories();
@@ -1290,6 +1344,8 @@ public class FXMLHomePageController implements Initializable {
         showReturnBookTreeTableData();
 
         showViewBookTreeTableData();
+
+
 
     }
 }

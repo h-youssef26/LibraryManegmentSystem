@@ -29,10 +29,6 @@ public @Data class User {
     @OneToMany(mappedBy = "borrowedBy")
     private List<Book> borrowedBooks = new ArrayList<>();
 
-
-    /*@Column(name="update_date")
-    private Date updateDate;*/
-
     public int getId() {
         return id;
     }
@@ -72,12 +68,5 @@ public @Data class User {
     public void setRole(String role) {
         this.role = role;
     }
-    /*public java.sql.Date getUpdateDate() {
-        return updateDate;
-    }
-
-    public void setUpdateDate(java.sql.Date updateDate) {
-        this.updateDate = updateDate;
-    }*/
 
 }
