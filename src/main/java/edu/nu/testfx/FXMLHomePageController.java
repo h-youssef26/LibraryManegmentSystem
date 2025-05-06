@@ -1071,11 +1071,13 @@ public class FXMLHomePageController implements Initializable {
         Return_BookTitle.clear();
         Return_studentID.clear();
         Return_studentName.clear();
+        Return_studentGender.getSelectionModel().clearSelection();
 
         Return_col_BookID.setStyle("");
         Return_BookTitle.setStyle("");
         Return_studentID.setStyle("");
         Return_studentName.setStyle("");
+        Return_studentGender.setStyle("");
     }
 
     private String[] genderList = {"Female","Male"};
