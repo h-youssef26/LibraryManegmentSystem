@@ -25,6 +25,7 @@ public  @Data class Book {
         this.categories = categories;
     }
 
+    @Column(nullable = false)
     private String categories;
 
 

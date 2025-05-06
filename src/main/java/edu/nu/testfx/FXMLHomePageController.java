@@ -213,31 +213,31 @@ public class FXMLHomePageController implements Initializable {
     private TextField View_Search;
 
     @FXML
-    private TreeTableColumn<?, ?> View_col_Category;
+    private TreeTableColumn<Book, String> View_col_Category;
 
     @FXML
-    private TreeTableColumn<?, ?> View_col_ID;
+    private TreeTableColumn<Book, String> View_col_ID;
 
     @FXML
-    private TreeTableColumn<?, ?> View_col_NOBC;
+    private TreeTableColumn<Book, String> View_col_NOBC;
 
     @FXML
-    private TreeTableColumn<?, ?> View_col_Status;
+    private TreeTableColumn<Book, String> View_col_Status;
 
     @FXML
-    private TreeTableColumn<?, ?> View_col_TNBB;
+    private TreeTableColumn<Book, String> View_col_TNBB;
 
     @FXML
-    private TreeTableColumn<?, ?> View_col_Title;
+    private TreeTableColumn<Book, String> View_col_Title;
 
     @FXML
-    private TreeTableColumn<?, ?> View_col_borrowingDate;
+    private TreeTableColumn<Book, String> View_col_borrowingDate;
 
     @FXML
-    private TreeTableColumn<?, ?> View_col_borrowingPeriod;
+    private TreeTableColumn<Book, String> View_col_borrowingPeriod;
 
     @FXML
-    private TreeTableView<?> View_tableView;
+    private TreeTableView<Book> View_tableView;
 
     @FXML
     private Button View_viewBtn;
@@ -328,6 +328,8 @@ public class FXMLHomePageController implements Initializable {
 
             clearReturnFields();
             showReturnBookTreeTableData();
+            checkBookForReturn();
+            processBookReturn();
 
 
         }else if (event.getSource() == viewBtn) {
@@ -342,6 +344,9 @@ public class FXMLHomePageController implements Initializable {
             AddBook_Form.setStyle("-fx-background-color:transparent");
             Return_Form.setStyle("-fx-background-color:transparent");
             BorrowedBook_Form.setStyle("-fx-background-color:transparent");
+
+            showViewBookTreeTableData();
+            updateCategoryStats();
 
         }
     }
@@ -1151,6 +1156,127 @@ public class FXMLHomePageController implements Initializable {
         Return_tableView.setShowRoot(false);
     }
 
+    public ObservableList<Book> loadViewBookListData() {
+        ObservableList<Book> listBooks = FXCollections.observableArrayList();
+        alertMessage alert = new alertMessage();
+
+        SessionFactory sessionFactory = null;
+        Session session = null;
+
+        try {
+            sessionFactory = new Configuration().configure().buildSessionFactory();
+            session = sessionFactory.openSession();
+
+            List<Book> books = session.createQuery(
+                    "SELECT DISTINCT b FROM Book b LEFT JOIN FETCH b.borrowedBy",
+                    Book.class
+            ).list();
+            listBooks.addAll(books);
+
+        } catch (Exception e) {
+            e.printStackTrace();
+            alert.errorMessage("Error loading books: " + e.getMessage());
+        } finally {
+            if (session != null) session.close();
+            if (sessionFactory != null) sessionFactory.close();
+        }
+
+        return listBooks;
+    }
+
+    private ObservableList<Book> viewBookList;
+
+    public void showViewBookTreeTableData() {
+        viewBookList = loadViewBookListData();
+
+        TreeItem<Book> root = new TreeItem<>();
+        root.setExpanded(true);
+
+        for (Book book : viewBookList) {
+            root.getChildren().add(new TreeItem<>(book));
+        }
+
+        View_col_ID.setCellValueFactory(param ->
+                new ReadOnlyStringWrapper(String.valueOf(param.getValue().getValue().getId())));
+
+        View_col_Title.setCellValueFactory(param ->
+                new ReadOnlyStringWrapper(param.getValue().getValue().getName()));
+
+        View_col_Category.setCellValueFactory(param -> {
+            String category = param.getValue().getValue().getCategories();
+            return new ReadOnlyStringWrapper(category != null ? category : "Uncategorized");
+        });
+
+        View_col_Status.setCellValueFactory(param ->
+                new ReadOnlyStringWrapper(param.getValue().getValue().isBorrowedStatus() ? "Borrowed" : "Available"));
+
+        View_col_borrowingDate.setCellValueFactory(param -> {
+            Date date = param.getValue().getValue().getBorrowingDate();
+            return new ReadOnlyStringWrapper(date != null ? date.toString() : "N/A");
+        });
+
+        View_col_borrowingPeriod.setCellValueFactory(param -> {
+            Integer period = param.getValue().getValue().getBorrowingPeriod();
+            return new ReadOnlyStringWrapper(period != null ? period + " days" : "N/A");
+        });
+
+        View_col_NOBC.setCellValueFactory(param -> {
+            String category = param.getValue().getValue().getCategories();
+            if (category == null) {
+                return new ReadOnlyStringWrapper("0");
+            }
+            long count = viewBookList.stream()
+                    .filter(b -> category.equals(b.getCategories()))
+                    .count();
+            return new ReadOnlyStringWrapper(String.valueOf(count));
+        });
+
+        View_col_TNBB.setCellValueFactory(param -> {
+            long totalBorrowed = viewBookList.stream()
+                    .filter(Book::isBorrowedStatus)
+                    .count();
+            return new ReadOnlyStringWrapper(String.valueOf(totalBorrowed));
+        });
+
+        View_tableView.setRoot(root);
+        View_tableView.setShowRoot(false);
+    }
+    public void updateCategoryStats() {
+        alertMessage alert = new alertMessage();
+        SessionFactory sessionFactory = null;
+        Session session = null;
+
+        try {
+            sessionFactory = new Configuration().configure().buildSessionFactory();
+            session = sessionFactory.openSession();
+
+            String categoryQuery = "SELECT b.categories, COUNT(b) FROM Book b GROUP BY b.categories";
+            List<Object[]> categoryCounts = session.createQuery(categoryQuery, Object[].class).list();
+
+            String borrowedQuery = "SELECT COUNT(b) FROM Book b WHERE b.borrowedStatus = true";
+            Long totalBorrowed = session.createQuery(borrowedQuery, Long.class).uniqueResult();
+
+            StringBuilder stats = new StringBuilder();
+            stats.append("Category-wise Book Counts:\n");
+
+            for (Object[] row : categoryCounts) {
+                stats.append(row[0]).append(": ").append(row[1]).append("\n");
+            }
+
+            stats.append("\nTotal Borrowed Books: ").append(totalBorrowed != null ? totalBorrowed : 0);
+
+            alert.successMessage(stats.toString());
+
+        } catch (Exception e) {
+            e.printStackTrace();
+            alert.errorMessage("Error fetching stats: " + e.getMessage());
+        } finally {
+            if (session != null) session.close();
+            if (sessionFactory != null) sessionFactory.close();
+        }
+    }
+
+
     @Override
     public void initialize(URL url, ResourceBundle resourceBundle) {
 
@@ -1160,9 +1286,10 @@ public class FXMLHomePageController implements Initializable {
         genderList();
 
         showBorrowBookTreeTableData();
+
         showReturnBookTreeTableData();
 
-        Return_checkBtn.setOnAction(event -> checkBookForReturn());
-        Return_returnBtn.setOnAction(event -> processBookReturn());
+        showViewBookTreeTableData();
+
     }
 }

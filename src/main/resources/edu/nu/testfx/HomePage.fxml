@@ -391,7 +391,7 @@
                         </AnchorPane>
                      </children>
                   </AnchorPane>
-                  <AnchorPane fx:id="Return_Form" layoutX="10.0" layoutY="10.0" prefHeight="649.0" prefWidth="846.0" AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0">
+                  <AnchorPane fx:id="Return_Form" layoutX="10.0" layoutY="10.0" prefHeight="649.0" prefWidth="846.0" visible="false" AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0">
                      <children>
                         <AnchorPane prefHeight="649.0" prefWidth="846.0" AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0">
                            <children>
@@ -504,9 +504,9 @@
                         </AnchorPane>
                      </children>
                   </AnchorPane>
-                  <AnchorPane fx:id="View_Form" layoutX="228.0" layoutY="158.0" prefHeight="649.0" prefWidth="846.0" visible="false" AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0">
+                  <AnchorPane fx:id="View_Form" layoutX="228.0" layoutY="158.0" prefHeight="649.0" prefWidth="846.0" AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0">
                      <children>
-                        <AnchorPane layoutX="9.0" layoutY="60.0" prefHeight="403.0" prefWidth="818.0" stylesheets="@Design/HomePage.css">
+                        <AnchorPane layoutX="9.0" prefHeight="639.0" prefWidth="818.0" stylesheets="@Design/HomePage.css">
                            <styleClass>
                               <String fx:value="white-bg" />
                               <String fx:value="shadow" />
@@ -514,7 +514,7 @@
                            <children>
                               <TextField fx:id="View_Search" layoutX="10.0" layoutY="13.0" prefHeight="30.0" prefWidth="325.0" promptText="Search" styleClass="search" stylesheets="@Design/HomePage.css" />
                               <FontAwesomeIconView glyphName="SEARCH" layoutX="17.0" layoutY="34.0" size="1.5em" text="" />
-                              <TreeTableView fx:id="View_tableView" layoutX="4.0" layoutY="58.0" prefHeight="339.0" prefWidth="809.0" styleClass="table-view" stylesheets="@Design/HomePage.css">
+                              <TreeTableView fx:id="View_tableView" layoutX="4.0" layoutY="58.0" prefHeight="563.0" prefWidth="809.0" styleClass="table-view" stylesheets="@Design/HomePage.css">
                                 <columns>
                                   <TreeTableColumn fx:id="View_col_ID" prefWidth="53.0" text="ID" />
                                   <TreeTableColumn fx:id="View_col_Title" prefWidth="72.0" text="Title" />
@@ -528,7 +528,6 @@
                               </TreeTableView>
                            </children>
                         </AnchorPane>
-                        <Button fx:id="View_viewBtn" layoutX="363.0" layoutY="534.0" mnemonicParsing="false" prefHeight="49.0" prefWidth="111.0" styleClass="add-btn" stylesheets="@Design/HomePage.css" text="VIEW" />
                      </children>
                   </AnchorPane>
                </children>
