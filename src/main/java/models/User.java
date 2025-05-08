@@ -23,10 +23,10 @@ public @Data class User {
     @Column(nullable = false, unique = true)
     private String email;
 
-    @Column(nullable = false)
-    private String role;
+    @Column(nullable = true)
+    private String role="Student";
 
-    @OneToMany(mappedBy = "borrowedBy")
+    @OneToMany(mappedBy = "borrowedBy", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
     private List<Book> borrowedBooks = new ArrayList<>();
 
     public int getId() {
@@ -67,6 +67,14 @@ public @Data class User {
 
     public void setRole(String role) {
         this.role = role;
+    }
+
+    public List<Book> getBorrowedBooks() {
+        return borrowedBooks;
+    }
+
+    public void setBorrowedBooks(List<Book> borrowedBooks) {
+        this.borrowedBooks = borrowedBooks;
     }
 
 }

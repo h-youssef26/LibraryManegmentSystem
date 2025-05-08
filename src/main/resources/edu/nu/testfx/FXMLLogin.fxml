@@ -15,7 +15,7 @@
 <children>
   <AnchorPane prefHeight="822.0" prefWidth="552.0" styleClass="white-bg" stylesheets="@Design/Style.css">
     <children>
-      <AnchorPane fx:id="Login_form" layoutX="13.0" layoutY="16.0" prefHeight="738.0" prefWidth="466.0" styleClass="white-bg" stylesheets="@Design/Style.css">
+      <AnchorPane fx:id="Login_form" layoutX="13.0" layoutY="16.0" prefHeight="738.0" prefWidth="466.0" styleClass="white-bg" stylesheets="@Design/Style.css" visible="false">
         <children>
           <Label layoutX="146.0" layoutY="138.0" stylesheets="@Design/Style.css" text="Sign In Account" textFill="#187778">
             <font>
@@ -105,7 +105,7 @@
                   </PasswordField>
         </children>
       </AnchorPane>
-      <AnchorPane fx:id="signup_form" layoutX="14.0" layoutY="14.0" prefHeight="738.0" prefWidth="466.0" styleClass="white-bg" stylesheets="@Design/Style.css" visible="false">
+      <AnchorPane fx:id="signup_form" layoutX="14.0" layoutY="14.0" prefHeight="738.0" prefWidth="466.0" styleClass="white-bg" stylesheets="@Design/Style.css">
         <children>
           <Label layoutX="146.0" layoutY="122.0" text="Sign Up Account" textFill="#187778">
             <font>
@@ -134,12 +134,12 @@
             </font>
           </Button>
           <FontAwesomeIconView fill="#2a827b" glyphName="USER_PLUS" layoutX="183.0" layoutY="95.0" size="8em" />
-          <TextField fx:id="signup_username" layoutX="63.0" layoutY="276.0" prefHeight="50.0" prefWidth="344.0" promptText="Username" styleClass="textfield" stylesheets="@Design/Style.css">
+          <TextField fx:id="signup_username" layoutX="63.0" layoutY="276.0" prefHeight="50.0" prefWidth="344.0" promptText="Email Address" styleClass="textfield" stylesheets="@Design/Style.css">
             <font>
               <Font size="20.0" />
             </font>
           </TextField>
-                  <TextField fx:id="signup_email" layoutX="63.0" layoutY="197.0" prefHeight="50.0" prefWidth="344.0" promptText="Email Address" styleClass="textfield" stylesheets="@Design/Style.css">
+                  <TextField fx:id="signup_email" layoutX="63.0" layoutY="197.0" prefHeight="50.0" prefWidth="344.0" promptText="Username" styleClass="textfield" stylesheets="@Design/Style.css">
                      <font>
                         <Font size="20.0" />
                      </font>

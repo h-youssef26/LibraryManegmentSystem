@@ -72,7 +72,7 @@ public class FXMLHomePageController implements Initializable {
     @FXML
     private Button AddBook_clearBtn;
 
-   @FXML
+    @FXML
     private TreeTableColumn<Book, String> AddBook_col_Category;
 
     @FXML
@@ -154,8 +154,10 @@ public class FXMLHomePageController implements Initializable {
     private Label Hime_totalCapacity;
 
     @FXML
-    private Label Hime_totalEnrolledStudent;
+    private Label Hime_totalUsedCapacity;
 
+    @FXML
+    private Label Hime_totalAvailableCapacity;
     @FXML
     private AnchorPane Home_Form;
 
@@ -330,9 +332,6 @@ public class FXMLHomePageController implements Initializable {
 
             clearReturnFields();
             showReturnBookTreeTableData();
-            checkBookForReturn();
-            processBookReturn();
-
 
         }else if (event.getSource() == viewBtn) {
             Home_Form.setVisible(false);
@@ -414,23 +413,14 @@ public class FXMLHomePageController implements Initializable {
     }
 
     public void updateBookCount() {
-        SessionFactory sessionFactory = null;
-        Session session = null;
-
-        try {
-            sessionFactory = new Configuration().configure().buildSessionFactory();
-            session = sessionFactory.openSession();
+        try (SessionFactory sessionFactory = new Configuration().configure().buildSessionFactory();
+             Session session = sessionFactory.openSession()) {
 
             Long count = (Long) session.createQuery("SELECT COUNT(*) FROM Book").uniqueResult();
             currentBookCount = count != null ? count.intValue() : 0;
 
-            Hime_totalCapacity.setText(libraryCapacity + " (Used: " + currentBookCount + ")");
-
         } catch (Exception e) {
             e.printStackTrace();
-        } finally {
-            if (session != null) session.close();
-            if (sessionFactory != null) sessionFactory.close();
         }
     }
 
@@ -442,12 +432,13 @@ public class FXMLHomePageController implements Initializable {
             return;
         }
 
-        if ((AddBook_BookID.getText().isEmpty())
-                || (AddBook_BookTitle.getText().isEmpty())
-                || (AddBook_Price.getText().isEmpty())
-                || (AddBook_Year.getSelectionModel().getSelectedItem() == null)
-                || (AddBook_Category.getSelectionModel().getSelectedItem() == null)
-                || (AddBook_Publisher.getText().isEmpty())){
+        if (AddBook_BookID.getText().isEmpty() ||
+                AddBook_BookTitle.getText().isEmpty() ||
+                AddBook_Price.getText().isEmpty() ||
+                AddBook_Year.getSelectionModel().getSelectedItem() == null ||
+                AddBook_Category.getSelectionModel().getSelectedItem() == null ||
+                AddBook_Publisher.getText().isEmpty()) {
+
             alert.errorMessage("All fields are required.");
             return;
         }
@@ -462,16 +453,13 @@ public class FXMLHomePageController implements Initializable {
             return;
         }
 
-        SessionFactory sessionFactory = new Configuration().configure().buildSessionFactory();
-        Session session = null;
-        Transaction transaction = null;
+        try (SessionFactory sessionFactory = new Configuration().configure().buildSessionFactory();
+             Session session = sessionFactory.openSession()) {
 
-        try {
-            session = sessionFactory.openSession();
-            transaction = session.beginTransaction();
+            session.beginTransaction();
 
-            String hql = "SELECT count(b) FROM Book b WHERE b.id = :id OR b.name = :name";
-            Long count = (Long) session.createQuery(hql)
+            Long count = (Long) session.createQuery(
+                            "SELECT count(b) FROM Book b WHERE b.id = :id OR b.name = :name")
                     .setParameter("id", bookId)
                     .setParameter("name", AddBook_BookTitle.getText())
                     .uniqueResult();
@@ -485,33 +473,22 @@ public class FXMLHomePageController implements Initializable {
             newBook.setId(bookId);
             newBook.setName(AddBook_BookTitle.getText());
             newBook.setAuthor(AddBook_Publisher.getText());
-            newBook.setCategories((String) AddBook_Category.getSelectionModel().getSelectedItem());
+            newBook.setCategories(AddBook_Category.getSelectionModel().getSelectedItem());
             newBook.setPrice(price);
             newBook.setYearPublished(AddBook_Year.getSelectionModel().getSelectedItem());
 
             session.save(newBook);
-            transaction.commit();
+            session.getTransaction().commit();
 
             alert.successMessage("Book added successfully!");
-
             addBookClear();
+
             currentBookCount++;
             updateBookCount();
 
-
         } catch (Exception e) {
-            if (transaction != null) {
-                transaction.rollback();
-            }
-            e.printStackTrace();
             alert.errorMessage("Error adding book: " + e.getMessage());
-        } finally {
-            if (session != null) {
-                session.close();
-            }
-            if (sessionFactory != null) {
-                sessionFactory.close();
-            }
+            e.printStackTrace();
         }
     }
 
@@ -1319,7 +1296,7 @@ public class FXMLHomePageController implements Initializable {
     @Override
     public void initialize(URL url, ResourceBundle resourceBundle) {
 
-        TextInputDialog dialog = new TextInputDialog("1000");
+        TextInputDialog dialog = new TextInputDialog("100");
         dialog.setTitle("Library Capacity");
         dialog.setHeaderText("Set Library Capacity");
         dialog.setContentText("Enter maximum number of books:");
@@ -1329,7 +1306,7 @@ public class FXMLHomePageController implements Initializable {
             try {
                 setLibraryCapacity(Integer.parseInt(capacity));
             } catch (NumberFormatException e) {
-                new alertMessage().errorMessage("Invalid number - using default capacity 1000");
+                new alertMessage().errorMessage("Invalid number - using default capacity 100");
                 setLibraryCapacity(1000);
             }
         });
