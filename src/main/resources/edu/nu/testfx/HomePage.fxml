@@ -120,7 +120,7 @@
                                                                 <Font size="20.0" />
                                                             </font>
                                                         </Label>
-                                                        <Label fx:id="Hime_totalCapacity" layoutX="189.0" layoutY="43.0" text="0" textFill="WHITE">
+                                                        <Label fx:id="Hime_totalCapacity" layoutX="166.0" layoutY="43.0" text="0" textFill="WHITE">
                                                             <font>
                                                                 <Font name="System Bold" size="24.0" />
                                                             </font>
@@ -158,7 +158,7 @@
                                                 <Font size="20.0" />
                                              </font>
                                           </Label>
-                                          <Label fx:id="Hime_totalUsedCapacity" layoutX="189.0" layoutY="43.0" text="0" textFill="WHITE">
+                                          <Label fx:id="Hime_totalUsedCapacity" layoutX="173.0" layoutY="43.0" text="0" textFill="WHITE">
                                              <font>
                                                 <Font name="System Bold" size="24.0" />
                                              </font>
