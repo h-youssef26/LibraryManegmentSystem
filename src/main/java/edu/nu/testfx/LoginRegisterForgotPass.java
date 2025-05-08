@@ -20,5 +20,4 @@ public class LoginRegisterForgotPass extends Application {
         launch();
     }
 
-
 }
